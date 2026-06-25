@@ -126,7 +126,7 @@
     <div class="sub">Upcoming fixtures · group standings · projected Round of 32 field</div>
   </div>
   <div class="updated-row">
-    <div class="updated">Last refreshed: <b id="updated-at">Jun 25, 2026 — group stage, matchday 3 in progress</b></div>
+    <div class="updated">Last refreshed: <b id="updated-at">Jun 25, 2026, early evening ET — Group E final; Groups D &amp; F kick off tonight</b></div>
     <button class="refresh-btn" id="refresh-btn" onclick="triggerRefresh()">⟳ Refresh Now</button>
   </div>
 </header>
@@ -157,8 +157,8 @@
 <details class="panel" open>
   <summary>Today &amp; Upcoming Fixtures <span class="chev">▶</span></summary>
   <div class="fixtures-grid" id="fixtures">
-    <div class="fixture live"><div class="grp">Group E</div><div class="teams"><span class="live-dot"></span>Ecuador vs Germany</div><div class="time">Today, 4:00pm ET — East Rutherford, NJ</div></div>
-    <div class="fixture live"><div class="grp">Group E</div><div class="teams"><span class="live-dot"></span>Curaçao vs Ivory Coast</div><div class="time">Today, 4:00pm ET — Philadelphia</div></div>
+    <div class="fixture"><div class="grp">Group E — Final</div><div class="teams">Ecuador 2–1 Germany</div><div class="time">Full-time — East Rutherford, NJ</div></div>
+    <div class="fixture"><div class="grp">Group E — Final</div><div class="teams">Curaçao 0–2 Ivory Coast</div><div class="time">Full-time — Philadelphia</div></div>
     <div class="fixture"><div class="grp">Group F</div><div class="teams">Japan vs Sweden</div><div class="time">Today, 7:00pm ET — Arlington, TX</div></div>
     <div class="fixture"><div class="grp">Group F</div><div class="teams">Tunisia vs Netherlands</div><div class="time">Today, 7:00pm ET — Kansas City</div></div>
     <div class="fixture"><div class="grp">Group D</div><div class="teams">Türkiye vs USA 🇺🇸</div><div class="time">Today, 10:00pm ET — Inglewood, CA</div></div>
@@ -187,13 +187,13 @@
     <span><span class="dot bub"></span>3rd place — depends on best-8 ranking</span>
     <span><span class="dot out"></span>Eliminated / mathematically out of top 2</span>
   </div>
-  <div class="caveat">Groups A, B, C are complete (final standings). Groups D–L have 1 group match remaining each — positions below are current, not final.</div>
+  <div class="caveat">Groups A, B, C and E are complete (final standings). Groups D, F–L have 1 group match remaining each — positions below are current, not final.</div>
 </details>
 
 <details class="panel" open>
   <summary>Projected Round of 32 — Best Third-Place Teams <span class="chev">▶</span></summary>
   <table class="third-table" id="third-table"></table>
-  <div class="pending-note">Provisional only: 8 of 12 third-place teams still have a group match to play (Jun 25–27). Ranking is by points, then goal difference, then goals scored.</div>
+  <div class="pending-note">Provisional only: 7 of 12 third-place teams still have a group match to play (Jun 25–27). Ranking is by points, then goal difference, then goals scored.</div>
 </details>
 
 <details class="panel" open>
@@ -229,9 +229,9 @@ const groups = [
     ["USA",2,2,0,0,6,1,6,"q"], ["Australia",2,1,0,1,2,2,3,"q"],
     ["Paraguay",2,1,0,1,2,4,3,"bub"], ["Türkiye",2,0,0,2,0,3,0,"out"]
   ]},
-  { name: "E", status: "Live now", teams: [
-    ["Germany",2,2,0,0,9,2,6,"q"], ["Ivory Coast",2,1,0,1,2,2,3,"q"],
-    ["Ecuador",2,0,1,1,0,1,1,"bub"], ["Curaçao",2,0,1,1,1,7,1,"out"]
+  { name: "E", status: "Final", teams: [
+    ["Germany",3,2,0,1,10,4,6,"q"], ["Ivory Coast",3,2,0,1,4,2,6,"q"],
+    ["Ecuador",3,1,1,1,2,2,4,"bub"], ["Curaçao",3,0,1,2,1,9,1,"out"]
   ]},
   { name: "F", status: "Live now", teams: [
     ["Netherlands",2,1,1,0,7,3,4,"q"], ["Japan",2,1,1,0,6,2,4,"q"],
@@ -307,6 +307,7 @@ groups.forEach(g => {
 
 // Third place provisional ranking
 const thirds = [
+  ["Ecuador","E",3,4,0,2],
   ["Bosnia-Herzegovina","B",3,4,-1,5],
   ["Sweden","F",2,3,0,6],
   ["Croatia","L",2,3,-1,3],
@@ -316,7 +317,6 @@ const thirds = [
   ["Scotland","C",3,3,-3,1],
   ["Cape Verde","H",2,2,0,2],
   ["Belgium","G",2,2,0,1],
-  ["Ecuador","E",2,1,-1,0],
   ["Congo DR","K",2,1,-1,1],
   ["Senegal","I",2,0,-3,3],
 ];
