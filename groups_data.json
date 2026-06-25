@@ -13,10 +13,6 @@
     "K": ["Colombia", "Portugal", "Congo DR", "Uzbekistan"],
     "L": ["England", "Ghana", "Croatia", "Panama"]
   },
-  "favorites": {
-    "United States": { "flag": "🇺🇸", "label": "USA", "group": "D" },
-    "England": { "flag": "🏴", "label": "England", "group": "L" }
-  },
   "r32": [
     { "date": "Sun, Jun 28", "venue": "Inglewood, CA — 3:00pm ET", "a": {"kind": "seed", "group": "A", "pos": 2}, "b": {"kind": "seed", "group": "B", "pos": 2} },
     { "date": "Mon, Jun 29", "venue": "Houston — 1:00pm ET", "a": {"kind": "seed", "group": "C", "pos": 1}, "b": {"kind": "runnerup", "group": "F"} },

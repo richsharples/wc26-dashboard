@@ -54,6 +54,48 @@ def empty_stats():
     return {"GP": 0, "W": 0, "D": 0, "L": 0, "F": 0, "A": 0}
 
 
+FAV_DEFAULT_COLORS = ("#0b2545", "#13315c")
+
+
+def parse_favorites(md_text):
+    """Parse favorites.md into [{name, flag, label, note, colors}, ...].
+
+    Format: each favourite is a `## Team Name` heading followed by
+    `- key: value` lines (flag, label, color, note). Everything is optional
+    except the heading. Lines outside a heading (the intro/docs) are ignored.
+    """
+    favs = []
+    current = None
+    for raw in md_text.splitlines():
+        line = raw.strip()
+        if line.startswith("## "):
+            if current:
+                favs.append(current)
+            current = {"name": line[3:].strip(), "flag": "", "label": "", "note": "", "colors": None}
+        elif current is not None and line.startswith("- ") and ":" in line:
+            key, _, val = line[2:].partition(":")
+            key, val = key.strip().lower(), val.strip()
+            if key == "flag":
+                current["flag"] = val
+            elif key == "label":
+                current["label"] = val
+            elif key == "note":
+                current["note"] = val
+            elif key in ("color", "colors"):
+                parts = [p.strip() for p in val.split(",") if p.strip()]
+                if len(parts) == 1:
+                    parts = [parts[0], parts[0]]
+                if len(parts) >= 2:
+                    current["colors"] = (parts[0], parts[1])
+    if current:
+        favs.append(current)
+    return favs
+
+
+def ordinal(n):
+    return {1: "1st", 2: "2nd", 3: "3rd", 4: "4th"}.get(n, "—" if n is None else f"{n}th")
+
+
 def parse_events(events, team_to_group):
     stats = {}
     fixtures = []
@@ -218,6 +260,35 @@ def render_thirds_js(thirds):
     return "[\n  " + rows_js + "\n]"
 
 
+def render_favorites_html(favs, group_tables, team_to_group):
+    cards = []
+    for fav in favs:
+        name = fav["name"]
+        letter = team_to_group.get(name)
+        gp = pts = gd = 0
+        rank = None
+        if letter and letter in group_tables:
+            for i, r in enumerate(group_tables[letter]["rows"]):
+                if r[0] == name:
+                    gp, pts, gd, rank = r[1], r[7], r[5] - r[6], i + 1
+                    break
+        c1, c2 = fav["colors"] or FAV_DEFAULT_COLORS
+        label = fav["label"] or name
+        grp_txt = f" — Group {letter}" if letter else ""
+        gd_txt = f"{'+' if gd > 0 else ''}{gd}"
+        cards.append(
+            f'<div class="fav-card" style="background:linear-gradient(135deg,{c1},{c2})">'
+            f'<div><span class="flag">{fav["flag"]}</span>'
+            f'<span class="name">{label}{grp_txt}</span></div>'
+            f'<div class="stat-row">'
+            f'<div>Played<b>{gp}</b></div><div>Pts<b>{pts}</b></div>'
+            f'<div>GD<b>{gd_txt}</b></div><div>Rank<b>{ordinal(rank)}</b></div>'
+            f'</div>'
+            f'<div class="note">{fav["note"]}</div></div>'
+        )
+    return "\n".join(cards)
+
+
 def render_fixtures_html(fixtures, now):
     window_end = now + datetime.timedelta(hours=60)
     upcoming = []
@@ -257,7 +328,12 @@ def render_fixtures_html(fixtures, now):
     return "\n".join(blocks)
 
 
-def patch_html(html, groups_js, thirds_js, fixtures_html, timestamp_text):
+def patch_html(html, groups_js, thirds_js, fixtures_html, favorites_html, timestamp_text):
+    html = re.sub(
+        r'(<section class="fav-banner">)(.*?)(</section>)',
+        lambda m: m.group(1) + "\n" + favorites_html + "\n" + m.group(3),
+        html, count=1, flags=re.S,
+    )
     html = re.sub(r"const groups = \[.*?\];", lambda m: f"const groups = {groups_js};", html, count=1, flags=re.S)
     html = re.sub(r"const thirds = \[.*?\];", lambda m: f"const thirds = {thirds_js};", html, count=1, flags=re.S)
     html = re.sub(
@@ -284,15 +360,18 @@ def main():
     thirds = build_thirds(group_tables)
     r32 = resolve_r32(data["r32"], group_tables, thirds)  # noqa: F841 (rendered separately if/when wired into template)
 
+    favs = parse_favorites((HERE / "favorites.md").read_text(encoding="utf-8"))
+
     groups_js = render_groups_js(groups_def, group_tables, fixtures)
     thirds_js = render_thirds_js(thirds)
     now = datetime.datetime.now(datetime.timezone.utc)
     fixtures_html = render_fixtures_html(fixtures, now)
+    favorites_html = render_favorites_html(favs, group_tables, team_to_group)
     timestamp_text = now.strftime("%b %-d, %Y, %H:%M UTC") + " — auto-refreshed"
 
     index_path = HERE / "index.html"
     html = index_path.read_text(encoding="utf-8")
-    new_html = patch_html(html, groups_js, thirds_js, fixtures_html, timestamp_text)
+    new_html = patch_html(html, groups_js, thirds_js, fixtures_html, favorites_html, timestamp_text)
     index_path.write_text(new_html, encoding="utf-8")
     print(f"Wrote {index_path} — {len(stats)} teams with results, {len(fixtures)} fixtures parsed.")
 
