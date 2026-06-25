@@ -1,0 +1,301 @@
+#!/usr/bin/env python3
+"""
+Deterministic FIFA World Cup 2026 dashboard refresher.
+
+No LLM calls. Pulls match data straight from ESPN's public scoreboard JSON
+feed, recomputes group standings / third-place ranking / Round of 32 slots
+from raw results, and rewrites index.html in place. Designed to run inside
+GitHub Actions (cron + manual workflow_dispatch) with zero Claude usage.
+
+Usage: python3 refresh.py
+Reads:  groups_data.json, index.html (as the template to patch)
+Writes: index.html
+"""
+import json
+import re
+import sys
+import datetime
+import urllib.request
+import urllib.parse
+from pathlib import Path
+
+HERE = Path(__file__).parent
+SCOREBOARD = "https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard"
+GROUP_START = datetime.date(2026, 6, 11)
+GROUP_END = datetime.date(2026, 6, 27)
+USER_AGENT = "Mozilla/5.0 (wc26-dashboard refresh bot; github actions)"
+
+
+def http_get_json(url, params):
+    qs = urllib.parse.urlencode(params)
+    req = urllib.request.Request(f"{url}?{qs}", headers={"User-Agent": USER_AGENT})
+    with urllib.request.urlopen(req, timeout=20) as resp:
+        return json.loads(resp.read().decode("utf-8"))
+
+
+def fetch_day(d):
+    data = http_get_json(SCOREBOARD, {"dates": d.strftime("%Y%m%d"), "limit": 100})
+    return data.get("events", [])
+
+
+def collect_events():
+    events = []
+    d = GROUP_START
+    while d <= GROUP_END:
+        try:
+            events.extend(fetch_day(d))
+        except Exception as e:
+            print(f"warning: failed to fetch {d}: {e}", file=sys.stderr)
+        d += datetime.timedelta(days=1)
+    return events
+
+
+def empty_stats():
+    return {"GP": 0, "W": 0, "D": 0, "L": 0, "F": 0, "A": 0}
+
+
+def parse_events(events, team_to_group):
+    stats = {}
+    fixtures = []
+    for ev in events:
+        try:
+            comp = ev["competitions"][0]
+        except (KeyError, IndexError):
+            continue
+        competitors = comp.get("competitors", [])
+        home = next((c for c in competitors if c.get("homeAway") == "home"), None)
+        away = next((c for c in competitors if c.get("homeAway") == "away"), None)
+        if not home or not away:
+            continue
+        home_name = home["team"]["displayName"]
+        away_name = away["team"]["displayName"]
+        status = comp.get("status", {}).get("type", {})
+        completed = bool(status.get("completed"))
+        state = status.get("state")  # pre | in | post
+        venue = comp.get("venue", {}).get("fullName", "")
+        city = comp.get("venue", {}).get("address", {}).get("city", "")
+        date_iso = comp.get("date") or ev.get("date")
+        group = team_to_group.get(home_name) or team_to_group.get(away_name)
+
+        fixtures.append({
+            "group": group, "home": home_name, "away": away_name,
+            "home_score": home.get("score"), "away_score": away.get("score"),
+            "completed": completed, "state": state,
+            "venue": venue, "city": city, "date": date_iso,
+        })
+
+        if not completed:
+            continue
+        try:
+            hs, asc = int(home.get("score", 0)), int(away.get("score", 0))
+        except (TypeError, ValueError):
+            continue
+
+        for name in (home_name, away_name):
+            stats.setdefault(name, empty_stats())
+        stats[home_name]["GP"] += 1
+        stats[away_name]["GP"] += 1
+        stats[home_name]["F"] += hs
+        stats[home_name]["A"] += asc
+        stats[away_name]["F"] += asc
+        stats[away_name]["A"] += hs
+        if hs > asc:
+            stats[home_name]["W"] += 1
+            stats[away_name]["L"] += 1
+        elif hs < asc:
+            stats[away_name]["W"] += 1
+            stats[home_name]["L"] += 1
+        else:
+            stats[home_name]["D"] += 1
+            stats[away_name]["D"] += 1
+
+    return stats, fixtures
+
+
+def sort_key(team_stats):
+    s = team_stats
+    pts = s["W"] * 3 + s["D"]
+    gd = s["F"] - s["A"]
+    return (-pts, -gd, -s["F"])
+
+
+def build_group_tables(groups_def, stats):
+    """Return dict group_letter -> {"status": str, "rows": [[name,gp,w,d,l,f,a,pts,cls], ...]}"""
+    out = {}
+    for letter, teams in groups_def.items():
+        rows = []
+        for name in teams:
+            s = stats.get(name, empty_stats())
+            rows.append((name, s))
+        rows.sort(key=lambda t: sort_key(t[1]))
+        all_played = all(s["GP"] >= 3 for _, s in rows)
+        final_rows = []
+        for i, (name, s) in enumerate(rows):
+            cls = "q" if i < 2 else ("bub" if i == 2 else "out")
+            pts = s["W"] * 3 + s["D"]
+            final_rows.append([name, s["GP"], s["W"], s["D"], s["L"], s["F"], s["A"], pts, cls])
+        out[letter] = {
+            "status": "Final" if all_played else None,  # None = caller fills in "N left"
+            "rows": final_rows,
+            "winner": final_rows[0][0] if all_played else None,
+            "runnerup": final_rows[1][0] if all_played else None,
+        }
+    return out
+
+
+def build_thirds(group_tables):
+    entries = []
+    for letter, g in group_tables.items():
+        if len(g["rows"]) < 3:
+            continue
+        name, gp, w, d, l, f, a, pts, cls = g["rows"][2]
+        entries.append([name, letter, gp, pts, f - a, f])
+    entries.sort(key=lambda e: (-e[3], -e[4], -e[5]))
+    return entries  # [name, group, gp, pts, gd, gf]
+
+
+def resolve_r32(r32_def, group_tables, thirds):
+    qualified_thirds = {e[0] for e in thirds[:8]}
+    rows = []
+    for fx in r32_def:
+        a_label = resolve_slot(fx["a"], group_tables, qualified_thirds)
+        b_label = resolve_slot(fx["b"], group_tables, qualified_thirds)
+        rows.append({"date": fx["date"], "venue": fx["venue"], "a": a_label, "b": b_label})
+    return rows
+
+
+def resolve_slot(slot, group_tables, qualified_thirds):
+    kind = slot["kind"]
+    if kind == "seed":
+        g = group_tables[slot["group"]]
+        if slot["pos"] == 1 and g["winner"]:
+            return f"{g['winner']} ({slot['group']}1)"
+        if slot["pos"] == 2 and g["runnerup"]:
+            return f"{g['runnerup']} ({slot['group']}2)"
+        return f"Group {slot['group']} {'winner' if slot['pos']==1 else 'runner-up'} — TBD"
+    if kind == "winner":
+        g = group_tables[slot["group"]]
+        return f"{g['winner']} ({slot['group']}1)" if g["winner"] else f"Group {slot['group']} winner — TBD"
+    if kind == "runnerup":
+        g = group_tables[slot["group"]]
+        return f"{g['runnerup']} ({slot['group']}2)" if g["runnerup"] else f"Group {slot['group']} runner-up — TBD"
+    if kind == "thirdpool":
+        # Not auto-resolved to a specific team in v1 — needs the full FIFA
+        # third-place bracket-assignment table to do safely. Left descriptive.
+        return slot["label"] + " — TBD"
+    return "TBD"
+
+
+def group_status_text(letter, g, fixtures):
+    if g["status"] == "Final":
+        return "Final"
+    remaining = [f for f in fixtures if f["group"] == letter and not f["completed"]]
+    if not remaining:
+        return "In progress"
+    remaining.sort(key=lambda f: f.get("date") or "")
+    n = len(remaining)
+    return f"{n} game{'s' if n != 1 else ''} left"
+
+
+def render_groups_js(groups_def, group_tables, fixtures):
+    parts = []
+    for letter in sorted(groups_def.keys()):
+        g = group_tables[letter]
+        status = group_status_text(letter, g, fixtures)
+        rows_js = ", ".join(
+            "[" + json.dumps(r[0]) + "," + ",".join(str(x) for x in r[1:8]) + "," + json.dumps(r[8]) + "]"
+            for r in g["rows"]
+        )
+        parts.append(f'{{ name: "{letter}", status: {json.dumps(status)}, teams: [{rows_js}] }}')
+    return "[\n  " + ",\n  ".join(parts) + "\n]"
+
+
+def render_thirds_js(thirds):
+    rows_js = ",\n  ".join(
+        "[" + json.dumps(e[0]) + "," + json.dumps(e[1]) + "," + ",".join(str(x) for x in e[2:]) + "]"
+        for e in thirds
+    )
+    return "[\n  " + rows_js + "\n]"
+
+
+def render_fixtures_html(fixtures, now):
+    window_end = now + datetime.timedelta(hours=60)
+    upcoming = []
+    for f in fixtures:
+        if not f.get("date"):
+            continue
+        try:
+            dt = datetime.datetime.fromisoformat(f["date"].replace("Z", "+00:00"))
+        except ValueError:
+            continue
+        if f["state"] == "in" or now - datetime.timedelta(hours=4) <= dt <= window_end:
+            upcoming.append((dt, f))
+    upcoming.sort(key=lambda x: x[0])
+
+    blocks = []
+    for dt, f in upcoming[:24]:
+        grp = f"Group {f['group']}" if f["group"] else ""
+        if f["completed"]:
+            blocks.append(
+                f'<div class="fixture"><div class="grp">{grp} — Final</div>'
+                f'<div class="teams">{f["home"]} {f["home_score"]}–{f["away_score"]} {f["away"]}</div>'
+                f'<div class="time">Full-time — {f["city"] or f["venue"]}</div></div>'
+            )
+        elif f["state"] == "in":
+            blocks.append(
+                f'<div class="fixture live"><div class="grp">{grp}</div>'
+                f'<div class="teams"><span class="live-dot"></span>{f["home"]} vs {f["away"]}</div>'
+                f'<div class="time">Live — {f["city"] or f["venue"]}</div></div>'
+            )
+        else:
+            local = dt.strftime("%a %b %-d, %-I:%M%p UTC")
+            blocks.append(
+                f'<div class="fixture"><div class="grp">{grp}</div>'
+                f'<div class="teams">{f["home"]} vs {f["away"]}</div>'
+                f'<div class="time">{local} — {f["city"] or f["venue"]}</div></div>'
+            )
+    return "\n".join(blocks)
+
+
+def patch_html(html, groups_js, thirds_js, fixtures_html, timestamp_text):
+    html = re.sub(r"const groups = \[.*?\];", f"const groups = {groups_js};", html, count=1, flags=re.S)
+    html = re.sub(r"const thirds = \[.*?\];", f"const thirds = {thirds_js};", html, count=1, flags=re.S)
+    html = re.sub(
+        r'(<div class="fixtures-grid" id="fixtures">)(.*?)(\s*</div>\s*<div class="pending-note">)',
+        lambda m: m.group(1) + "\n" + fixtures_html + m.group(3),
+        html, count=1, flags=re.S,
+    )
+    html = re.sub(
+        r'(<b id="updated-at">)(.*?)(</b>)',
+        lambda m: m.group(1) + timestamp_text + m.group(3),
+        html, count=1, flags=re.S,
+    )
+    return html
+
+
+def main():
+    data = json.loads((HERE / "groups_data.json").read_text())
+    groups_def = data["groups"]
+    team_to_group = {team: g for g, teams in groups_def.items() for team in teams}
+
+    events = collect_events()
+    stats, fixtures = parse_events(events, team_to_group)
+    group_tables = build_group_tables(groups_def, stats)
+    thirds = build_thirds(group_tables)
+    r32 = resolve_r32(data["r32"], group_tables, thirds)  # noqa: F841 (rendered separately if/when wired into template)
+
+    groups_js = render_groups_js(groups_def, group_tables, fixtures)
+    thirds_js = render_thirds_js(thirds)
+    now = datetime.datetime.now(datetime.timezone.utc)
+    fixtures_html = render_fixtures_html(fixtures, now)
+    timestamp_text = now.strftime("%b %-d, %Y, %H:%M UTC") + " — auto-refreshed"
+
+    index_path = HERE / "index.html"
+    html = index_path.read_text(encoding="utf-8")
+    new_html = patch_html(html, groups_js, thirds_js, fixtures_html, timestamp_text)
+    index_path.write_text(new_html, encoding="utf-8")
+    print(f"Wrote {index_path} — {len(stats)} teams with results, {len(fixtures)} fixtures parsed.")
+
+
+if __name__ == "__main__":
+    main()
