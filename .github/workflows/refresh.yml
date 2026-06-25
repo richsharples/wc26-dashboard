@@ -5,6 +5,12 @@ on:
     # 07:05 ET = 11:05 UTC (EDT, summer). Adjust if DST changes.
     - cron: "5 11 * * *"
   workflow_dispatch: {}
+  push:
+    branches: [main]
+    # Rebuild immediately when the favourites config changes. The auto-commit
+    # below only touches index.html, so it won't retrigger this workflow.
+    paths:
+      - favorites.md
 
 permissions:
   contents: write
