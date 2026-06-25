@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>World Cup 2026 Dashboard</title>
+<style>
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: #f4f5f7;
+    color: #1a1d23;
+    padding: 24px;
+  }
+  .wrap { max-width: 1140px; margin: 0 auto; }
+  header {
+    display: flex; justify-content: space-between; align-items: flex-end;
+    flex-wrap: wrap; gap: 8px; margin-bottom: 20px;
+  }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  .sub { color: #5a6172; font-size: 13px; }
+  .updated {
+    background: #fff; border: 1px solid #e2e5ea; border-radius: 8px;
+    padding: 8px 14px; font-size: 12px; color: #5a6172;
+  }
+  .updated b { color: #1a1d23; }
+  section { margin-bottom: 28px; }
+  h2 {
+    font-size: 15px; text-transform: uppercase; letter-spacing: .04em;
+    color: #5a6172; margin: 0 0 12px; border-bottom: 2px solid #e2e5ea; padding-bottom: 6px;
+  }
+  details.panel { margin-bottom: 28px; }
+  details.panel summary {
+    list-style: none; cursor: pointer; font-size: 15px; text-transform: uppercase;
+    letter-spacing: .04em; color: #5a6172; margin: 0 0 12px; border-bottom: 2px solid #e2e5ea;
+    padding-bottom: 6px; display: flex; align-items: center; justify-content: space-between;
+    user-select: none;
+  }
+  details.panel summary::-webkit-details-marker { display: none; }
+  details.panel summary .chev { font-size: 12px; color: #97a0ad; transition: transform .15s ease; }
+  details.panel[open] summary .chev { transform: rotate(90deg); }
+  details.panel summary:hover { color: #1a1d23; }
+  details.panel > *:not(summary) { margin-top: 0; }
+  .fav-banner {
+    display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 22px;
+  }
+  .fav-card {
+    flex: 1; min-width: 260px; background: linear-gradient(135deg,#0b2545,#13315c);
+    color: #fff; border-radius: 12px; padding: 16px 18px;
+  }
+  .fav-card.us { background: linear-gradient(135deg,#1d2d50,#3c3b6e); }
+  .fav-card.eng { background: linear-gradient(135deg,#7a0c0c,#a11d1d); }
+  .fav-card .flag { font-size: 22px; margin-right: 6px; }
+  .fav-card .name { font-size: 16px; font-weight: 700; }
+  .fav-card .stat-row { display: flex; gap: 18px; margin-top: 10px; font-size: 13px; }
+  .fav-card .stat-row div b { display: block; font-size: 17px; }
+  .fav-card .note { margin-top: 8px; font-size: 12.5px; opacity: .9; }
+
+  .fixtures-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(260px,1fr)); gap: 10px;
+  }
+  .fixture {
+    background: #fff; border: 1px solid #e2e5ea; border-radius: 10px; padding: 10px 12px;
+    font-size: 13px;
+  }
+  .fixture .grp { font-size: 11px; color: #888; text-transform: uppercase; font-weight: 600; }
+  .fixture .teams { font-weight: 600; margin: 4px 0; }
+  .fixture .time { color: #5a6172; font-size: 12px; }
+  .fixture.live { border-color: #d23; box-shadow: 0 0 0 2px rgba(210,30,50,.08); }
+  .live-dot { display:inline-block; width:7px; height:7px; border-radius:50%; background:#d23; margin-right:5px; animation: pulse 1.4s infinite; }
+  @keyframes pulse { 0%{opacity:1} 50%{opacity:.3} 100%{opacity:1} }
+
+  .groups-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(255px,1fr)); gap: 12px;
+  }
+  .group-card { background: #fff; border: 1px solid #e2e5ea; border-radius: 10px; overflow: hidden; }
+  .group-card .gh {
+    background: #1a1d23; color: #fff; font-size: 12.5px; font-weight: 700;
+    padding: 7px 10px; display:flex; justify-content: space-between; align-items:center;
+  }
+  .group-card .gh span.status { font-size: 10.5px; font-weight: 500; opacity: .75; text-transform: none; }
+  table.gtab { width: 100%; border-collapse: collapse; font-size: 12px; }
+  table.gtab th, table.gtab td { padding: 5px 6px; text-align: center; }
+  table.gtab th { color: #999; font-weight: 500; font-size: 10.5px; }
+  table.gtab td.team { text-align: left; font-weight: 600; }
+  table.gtab tr.q td.team { color: #0a7d32; }
+  table.gtab tr.bub td.team { color: #b8860b; }
+  table.gtab tr.out td.team { color: #b3b8c2; }
+  table.gtab tr.q { background: #eafaf0; }
+  table.gtab tr.bub { background: #fff8e6; }
+  .legend { font-size: 11px; color: #5a6172; padding: 6px 10px 9px; display:flex; gap:12px; flex-wrap:wrap; }
+  .legend span { display:flex; align-items:center; gap:4px; }
+  .dot { width:8px; height:8px; border-radius:50%; display:inline-block; }
+  .dot.q { background:#0a7d32; } .dot.bub { background:#d4a017; } .dot.out { background:#c7cbd3; }
+
+  .third-table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid #e2e5ea; border-radius: 10px; overflow:hidden; font-size: 13px; }
+  .third-table th, .third-table td { padding: 8px 10px; text-align: center; border-bottom: 1px solid #eef0f3; }
+  .third-table th { background: #1a1d23; color: #fff; font-size: 11px; text-transform: uppercase; }
+  .third-table td.team { text-align: left; font-weight: 600; }
+  .third-table tr.in td.team { color: #0a7d32; }
+  .third-table tr.bub td.team { color: #b8860b; }
+  .third-table tr.in { background: #eafaf0; }
+  .third-table tr.bub { background: #fff8e6; }
+  .rank-badge { display:inline-block; width:20px; height:20px; border-radius:50%; background:#1a1d23; color:#fff; font-size:11px; line-height:20px; text-align:center; margin-right:4px;}
+
+  .pending-note { font-size: 12px; color: #b8860b; background: #fff8e6; border: 1px solid #f0deab; border-radius: 8px; padding: 8px 12px; margin-top: 10px; }
+  .caveat { font-size: 12px; color: #5a6172; margin-top: 8px; }
+  footer { font-size: 11px; color: #97a0ad; margin-top: 30px; border-top: 1px solid #e2e5ea; padding-top: 12px; }
+  footer a { color: #5a6172; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div>
+    <h1>🏆 FIFA World Cup 2026 — Dashboard</h1>
+    <div class="sub">Upcoming fixtures · group standings · projected Round of 32 field</div>
+  </div>
+  <div class="updated">Last refreshed: <b id="updated-at">Jun 25, 2026 — group stage, matchday 3 in progress</b></div>
+</header>
+
+<section class="fav-banner">
+  <div class="fav-card us">
+    <div><span class="flag">🇺🇸</span><span class="name">USA — Group D</span></div>
+    <div class="stat-row">
+      <div>Played<b>2</b></div>
+      <div>Pts<b>6</b></div>
+      <div>GD<b>+5</b></div>
+      <div>Rank<b>1st</b></div>
+    </div>
+    <div class="note">Already through to Round of 32. Plays Türkiye tonight (10pm ET) — a win secures Group D top spot outright.</div>
+  </div>
+  <div class="fav-card eng">
+    <div><span class="flag">🏴</span><span class="name">England — Group L</span></div>
+    <div class="stat-row">
+      <div>Played<b>2</b></div>
+      <div>Pts<b>4</b></div>
+      <div>GD<b>+2</b></div>
+      <div>Rank<b>1st</b></div>
+    </div>
+    <div class="note">Level on points with Ghana. Final group match vs Panama is June 27 — win or draw keeps England top of Group L.</div>
+  </div>
+</section>
+
+<details class="panel" open>
+  <summary>Today &amp; Upcoming Fixtures <span class="chev">▶</span></summary>
+  <div class="fixtures-grid" id="fixtures">
+    <div class="fixture live"><div class="grp">Group E</div><div class="teams"><span class="live-dot"></span>Ecuador vs Germany</div><div class="time">Today, 4:00pm ET — East Rutherford, NJ</div></div>
+    <div class="fixture live"><div class="grp">Group E</div><div class="teams"><span class="live-dot"></span>Curaçao vs Ivory Coast</div><div class="time">Today, 4:00pm ET — Philadelphia</div></div>
+    <div class="fixture"><div class="grp">Group F</div><div class="teams">Japan vs Sweden</div><div class="time">Today, 7:00pm ET — Arlington, TX</div></div>
+    <div class="fixture"><div class="grp">Group F</div><div class="teams">Tunisia vs Netherlands</div><div class="time">Today, 7:00pm ET — Kansas City</div></div>
+    <div class="fixture"><div class="grp">Group D</div><div class="teams">Türkiye vs USA 🇺🇸</div><div class="time">Today, 10:00pm ET — Inglewood, CA</div></div>
+    <div class="fixture"><div class="grp">Group D</div><div class="teams">Paraguay vs Australia</div><div class="time">Today, 10:00pm ET — Santa Clara, CA</div></div>
+    <div class="fixture"><div class="grp">Group I</div><div class="teams">Norway vs France</div><div class="time">Fri Jun 26, 3:00pm ET — Foxborough, MA</div></div>
+    <div class="fixture"><div class="grp">Group I</div><div class="teams">Senegal vs Iraq</div><div class="time">Fri Jun 26, 3:00pm ET — Toronto</div></div>
+    <div class="fixture"><div class="grp">Group H</div><div class="teams">Cape Verde vs Saudi Arabia</div><div class="time">Fri Jun 26, 8:00pm ET — Houston</div></div>
+    <div class="fixture"><div class="grp">Group H</div><div class="teams">Uruguay vs Spain</div><div class="time">Fri Jun 26, 8:00pm ET — Zapopan, MX</div></div>
+    <div class="fixture"><div class="grp">Group G</div><div class="teams">Egypt vs Iran</div><div class="time">Fri Jun 26, 11:00pm ET — Seattle</div></div>
+    <div class="fixture"><div class="grp">Group G</div><div class="teams">New Zealand vs Belgium</div><div class="time">Fri Jun 26, 11:00pm ET — Vancouver</div></div>
+    <div class="fixture"><div class="grp">Group L</div><div class="teams">Panama vs England 🏴</div><div class="time">Sat Jun 27, 5:00pm ET — East Rutherford, NJ</div></div>
+    <div class="fixture"><div class="grp">Group L</div><div class="teams">Croatia vs Ghana</div><div class="time">Sat Jun 27, 5:00pm ET — Philadelphia</div></div>
+    <div class="fixture"><div class="grp">Group K</div><div class="teams">Colombia vs Portugal</div><div class="time">Sat Jun 27, 7:30pm ET — Miami Gardens</div></div>
+    <div class="fixture"><div class="grp">Group K</div><div class="teams">DR Congo vs Uzbekistan</div><div class="time">Sat Jun 27, 7:30pm ET — Atlanta</div></div>
+    <div class="fixture"><div class="grp">Group J</div><div class="teams">Algeria vs Austria</div><div class="time">Sat Jun 27, 10:00pm ET — Kansas City</div></div>
+    <div class="fixture"><div class="grp">Group J</div><div class="teams">Jordan vs Argentina</div><div class="time">Sat Jun 27, 10:00pm ET — Arlington, TX</div></div>
+  </div>
+  <div class="pending-note">Group stage wraps up June 27. Round of 32 kicks off June 28.</div>
+</details>
+
+<details class="panel" open>
+  <summary>Group Standings (12 groups) <span class="chev">▶</span></summary>
+  <div class="groups-grid" id="groups"></div>
+  <div class="legend">
+    <span><span class="dot q"></span>Through to Round of 32</span>
+    <span><span class="dot bub"></span>3rd place — depends on best-8 ranking</span>
+    <span><span class="dot out"></span>Eliminated / mathematically out of top 2</span>
+  </div>
+  <div class="caveat">Groups A, B, C are complete (final standings). Groups D–L have 1 group match remaining each — positions below are current, not final.</div>
+</details>
+
+<details class="panel" open>
+  <summary>Projected Round of 32 — Best Third-Place Teams <span class="chev">▶</span></summary>
+  <table class="third-table" id="third-table"></table>
+  <div class="pending-note">Provisional only: 8 of 12 third-place teams still have a group match to play (Jun 25–27). Ranking is by points, then goal difference, then goals scored.</div>
+</details>
+
+<details class="panel" open>
+  <summary>Round of 32 Fixtures <span class="chev">▶</span></summary>
+  <div class="fixtures-grid" id="r32"></div>
+  <div class="caveat">Slots filled in are confirmed (Groups A, B &amp; C are complete). Everything else is "TBD" until Groups D–L finish their final match (Jun 25–27) — third-place slots additionally depend on the best-8 ranking above.</div>
+</details>
+
+<footer>
+  Sources: <a href="https://www.espn.com/soccer/table/_/league/fifa.world" target="_blank">ESPN World Cup standings</a> ·
+  <a href="https://www.espn.com/soccer/story/_/id/48939282" target="_blank">ESPN fixture schedule</a> ·
+  <a href="https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/standings" target="_blank">FIFA.com</a><br>
+  This is a snapshot rebuilt periodically by Claude (not a live feed) — reopen after each refresh for the latest picture.
+</footer>
+
+</div>
+
+<script>
+const groups = [
+  { name: "A", status: "Final", teams: [
+    ["Mexico",3,3,0,0,6,0,9,"q"], ["South Africa",3,1,1,1,2,3,4,"q"],
+    ["South Korea",3,1,0,2,2,3,3,"bub"], ["Czechia",3,0,1,2,2,6,1,"out"]
+  ]},
+  { name: "B", status: "Final", teams: [
+    ["Switzerland",3,2,1,0,7,3,7,"q"], ["Canada",3,1,1,1,8,3,4,"q"],
+    ["Bosnia-Herzegovina",3,1,1,1,5,6,4,"bub"], ["Qatar",3,0,1,2,2,10,1,"out"]
+  ]},
+  { name: "C", status: "Final", teams: [
+    ["Brazil",3,2,1,0,7,1,7,"q"], ["Morocco",3,2,1,0,6,3,7,"q"],
+    ["Scotland",3,1,0,2,1,4,3,"bub"], ["Haiti",3,0,0,3,2,8,0,"out"]
+  ]},
+  { name: "D", status: "1 game left (today)", teams: [
+    ["USA",2,2,0,0,6,1,6,"q"], ["Australia",2,1,0,1,2,2,3,"q"],
+    ["Paraguay",2,1,0,1,2,4,3,"bub"], ["Türkiye",2,0,0,2,0,3,0,"out"]
+  ]},
+  { name: "E", status: "Live now", teams: [
+    ["Germany",2,2,0,0,9,2,6,"q"], ["Ivory Coast",2,1,0,1,2,2,3,"q"],
+    ["Ecuador",2,0,1,1,0,1,1,"bub"], ["Curaçao",2,0,1,1,1,7,1,"out"]
+  ]},
+  { name: "F", status: "Live now", teams: [
+    ["Netherlands",2,1,1,0,7,3,4,"q"], ["Japan",2,1,1,0,6,2,4,"q"],
+    ["Sweden",2,1,0,1,6,6,3,"bub"], ["Tunisia",2,0,0,2,1,9,0,"out"]
+  ]},
+  { name: "G", status: "1 game left (Jun 26)", teams: [
+    ["Egypt",2,1,1,0,4,2,4,"q"], ["Iran",2,0,2,0,2,2,2,"q"],
+    ["Belgium",2,0,2,0,1,1,2,"bub"], ["New Zealand",2,0,1,1,3,5,1,"out"]
+  ]},
+  { name: "H", status: "1 game left (Jun 26)", teams: [
+    ["Spain",2,1,1,0,4,0,4,"q"], ["Uruguay",2,0,2,0,3,3,2,"q"],
+    ["Cape Verde",2,0,2,0,2,2,2,"bub"], ["Saudi Arabia",2,0,1,1,1,5,1,"out"]
+  ]},
+  { name: "I", status: "1 game left (Jun 26)", teams: [
+    ["France",2,2,0,0,6,1,6,"q"], ["Norway",2,2,0,0,7,3,6,"q"],
+    ["Senegal",2,0,0,2,3,6,0,"out"], ["Iraq",2,0,0,2,1,7,0,"out"]
+  ]},
+  { name: "J", status: "1 game left (Jun 27)", teams: [
+    ["Argentina",2,2,0,0,5,0,6,"q"], ["Austria",2,1,0,1,3,3,3,"q"],
+    ["Algeria",2,1,0,1,2,4,3,"bub"], ["Jordan",2,0,0,2,2,5,0,"out"]
+  ]},
+  { name: "K", status: "1 game left (Jun 27)", teams: [
+    ["Colombia",2,2,0,0,4,1,6,"q"], ["Portugal",2,1,1,0,6,1,4,"q"],
+    ["Congo DR",2,0,1,1,1,2,1,"bub"], ["Uzbekistan",2,0,0,2,1,8,0,"out"]
+  ]},
+  { name: "L", status: "1 game left (Jun 27)", teams: [
+    ["England 🏴",2,1,1,0,4,2,4,"q"], ["Ghana",2,1,1,0,1,0,4,"q"],
+    ["Croatia",2,1,0,1,3,4,3,"bub"], ["Panama",2,0,0,2,0,2,0,"out"]
+  ]},
+];
+
+const r32 = [
+  { date: "Sun, Jun 28", venue: "Inglewood, CA — 3:00pm ET", a: "South Africa (A2)", b: "Canada (B2)" },
+  { date: "Mon, Jun 29", venue: "Houston — 1:00pm ET", a: "Brazil (C1)", b: "Group F runner-up — TBD" },
+  { date: "Mon, Jun 29", venue: "Foxborough, MA — 4:30pm ET", a: "Group E winner — TBD", b: "3rd place A/B/C/D/F — TBD" },
+  { date: "Mon, Jun 29", venue: "Guadalupe, MX — 9:00pm ET", a: "Group F winner — TBD", b: "Morocco (C2)" },
+  { date: "Tue, Jun 30", venue: "Arlington, TX — 1:00pm ET", a: "Group E runner-up — TBD", b: "Group I runner-up — TBD" },
+  { date: "Tue, Jun 30", venue: "East Rutherford, NJ — 5:00pm ET", a: "Group I winner — TBD", b: "3rd place C/D/F/G/H — TBD" },
+  { date: "Tue, Jun 30", venue: "Mexico City — 9:00pm ET", a: "Mexico (A1)", b: "3rd place C/E/F/H/I — TBD" },
+  { date: "Wed, Jul 1", venue: "Atlanta — 12:00pm ET", a: "Group L winner — TBD", b: "3rd place E/H/I/J/K — TBD" },
+  { date: "Wed, Jul 1", venue: "Seattle — 4:00pm ET", a: "Group G winner — TBD", b: "3rd place A/E/H/I/J — TBD" },
+  { date: "Wed, Jul 1", venue: "Santa Clara, CA — 8:00pm ET", a: "Group D winner — TBD", b: "3rd place B/E/F/I/J — TBD" },
+  { date: "Thu, Jul 2", venue: "Inglewood, CA — 3:00pm ET", a: "Group H winner — TBD", b: "Group J runner-up — TBD" },
+  { date: "Thu, Jul 2", venue: "Toronto — 7:00pm ET", a: "Group K runner-up — TBD", b: "Group L runner-up — TBD" },
+  { date: "Thu, Jul 2", venue: "Vancouver — 11:00pm ET", a: "Switzerland (B1)", b: "3rd place E/F/G/I/J — TBD" },
+  { date: "Fri, Jul 3", venue: "Arlington, TX — 2:00pm ET", a: "Group D runner-up — TBD", b: "Group G runner-up — TBD" },
+  { date: "Fri, Jul 3", venue: "Miami Gardens, FL — 6:00pm ET", a: "Group J winner — TBD", b: "Group H runner-up — TBD" },
+  { date: "Fri, Jul 3", venue: "Kansas City — 9:30pm ET", a: "Group K winner — TBD", b: "3rd place D/E/I/J/L — TBD" },
+];
+const r32El = document.getElementById("r32");
+r32El.innerHTML = r32.map(m => `
+  <div class="fixture"><div class="grp">Round of 32 — ${m.date}</div>
+  <div class="teams">${m.a} vs ${m.b}</div>
+  <div class="time">${m.venue}</div></div>`).join("");
+
+const groupsEl = document.getElementById("groups");
+groups.forEach(g => {
+  const card = document.createElement("div");
+  card.className = "group-card";
+  let rows = g.teams.map(t => {
+    const [name,gp,w,d,l,f,a,p,cls] = t;
+    const gd = f - a;
+    return `<tr class="${cls}"><td class="team">${name}</td><td>${gp}</td><td>${w}</td><td>${d}</td><td>${l}</td><td>${gd>0?'+':''}${gd}</td><td><b>${p}</b></td></tr>`;
+  }).join("");
+  card.innerHTML = `
+    <div class="gh"><span>GROUP ${g.name}</span><span class="status">${g.status}</span></div>
+    <table class="gtab">
+      <tr><th style="text-align:left">Team</th><th>GP</th><th>W</th><th>D</th><th>L</th><th>GD</th><th>Pts</th></tr>
+      ${rows}
+    </table>`;
+  groupsEl.appendChild(card);
+});
+
+// Third place provisional ranking
+const thirds = [
+  ["Bosnia-Herzegovina","B",3,4,-1,5],
+  ["Sweden","F",2,3,0,6],
+  ["Croatia","L",2,3,-1,3],
+  ["South Korea","A",3,3,-1,2],
+  ["Algeria","J",2,3,-2,2],
+  ["Paraguay","D",2,3,-2,2],
+  ["Scotland","C",3,3,-3,1],
+  ["Cape Verde","H",2,2,0,2],
+  ["Belgium","G",2,2,0,1],
+  ["Ecuador","E",2,1,-1,0],
+  ["Congo DR","K",2,1,-1,1],
+  ["Senegal","I",2,0,-3,3],
+];
+const thirdEl = document.getElementById("third-table");
+let thRows = thirds.map((t,i) => {
+  const [name,grp,gp,pts,gd,gf] = t;
+  const cls = i < 8 ? "in" : "bub";
+  return `<tr class="${cls}"><td><span class="rank-badge">${i+1}</span></td><td class="team">${name}</td><td>${grp}</td><td>${gp}</td><td>${pts}</td><td>${gd>0?'+':''}${gd}</td><td>${gf}</td></tr>`;
+}).join("");
+thirdEl.innerHTML = `
+  <tr><th>#</th><th style="text-align:left">Team</th><th>Group</th><th>GP</th><th>Pts</th><th>GD</th><th>GF</th></tr>
+  ${thRows}`;
+</script>
+</body>
+</html>
