@@ -203,16 +203,16 @@ def render_groups_js(groups_def, group_tables, fixtures):
         g = group_tables[letter]
         status = group_status_text(letter, g, fixtures)
         rows_js = ", ".join(
-            "[" + json.dumps(r[0]) + "," + ",".join(str(x) for x in r[1:8]) + "," + json.dumps(r[8]) + "]"
+            "[" + json.dumps(r[0], ensure_ascii=False) + "," + ",".join(str(x) for x in r[1:8]) + "," + json.dumps(r[8], ensure_ascii=False) + "]"
             for r in g["rows"]
         )
-        parts.append(f'{{ name: "{letter}", status: {json.dumps(status)}, teams: [{rows_js}] }}')
+        parts.append(f'{{ name: "{letter}", status: {json.dumps(status, ensure_ascii=False)}, teams: [{rows_js}] }}')
     return "[\n  " + ",\n  ".join(parts) + "\n]"
 
 
 def render_thirds_js(thirds):
     rows_js = ",\n  ".join(
-        "[" + json.dumps(e[0]) + "," + json.dumps(e[1]) + "," + ",".join(str(x) for x in e[2:]) + "]"
+        "[" + json.dumps(e[0], ensure_ascii=False) + "," + json.dumps(e[1], ensure_ascii=False) + "," + ",".join(str(x) for x in e[2:]) + "]"
         for e in thirds
     )
     return "[\n  " + rows_js + "\n]"
@@ -258,8 +258,8 @@ def render_fixtures_html(fixtures, now):
 
 
 def patch_html(html, groups_js, thirds_js, fixtures_html, timestamp_text):
-    html = re.sub(r"const groups = \[.*?\];", f"const groups = {groups_js};", html, count=1, flags=re.S)
-    html = re.sub(r"const thirds = \[.*?\];", f"const thirds = {thirds_js};", html, count=1, flags=re.S)
+    html = re.sub(r"const groups = \[.*?\];", lambda m: f"const groups = {groups_js};", html, count=1, flags=re.S)
+    html = re.sub(r"const thirds = \[.*?\];", lambda m: f"const thirds = {thirds_js};", html, count=1, flags=re.S)
     html = re.sub(
         r'(<div class="fixtures-grid" id="fixtures">)(.*?)(\s*</div>\s*<div class="pending-note">)',
         lambda m: m.group(1) + "\n" + fixtures_html + m.group(3),
