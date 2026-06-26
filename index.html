@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>World Cup 2026 Dashboard</title>
 <style>
   :root { color-scheme: light; }
@@ -112,6 +113,23 @@
   .pane-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: #5a6172; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid #eef0f3; }
   #no-fixtures { font-size: 12px; color: #97a0ad; padding: 8px 0; }
   .fav-name { font-weight: 700; }
+
+  @media (max-width: 600px) {
+    body { padding: 12px; }
+    h1 { font-size: 17px; }
+    header { flex-direction: column; align-items: flex-start; }
+    .updated { align-self: stretch; }
+    .fav-banner { gap: 8px; }
+    .fav-card { min-width: 0; flex: 1 1 100%; padding: 13px 14px; }
+    .fav-card .stat-row { gap: 12px; }
+    .fixtures-grid { grid-template-columns: 1fr; gap: 8px; }
+    .fixture { padding: 8px 10px; }
+    .groups-grid { grid-template-columns: 1fr; gap: 8px; }
+    table.gtab th, table.gtab td { padding: 4px 4px; font-size: 11px; }
+    .third-table th, .third-table td { padding: 6px 6px; font-size: 12px; }
+    .rank-badge { width: 18px; height: 18px; font-size: 10px; line-height: 18px; }
+    .legend { gap: 8px; }
+  }
 </style>
 </head>
 <body>
