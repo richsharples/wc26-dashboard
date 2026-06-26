@@ -2,8 +2,8 @@ name: Refresh WC26 Dashboard
 
 on:
   schedule:
-    # 07:05 ET = 11:05 UTC (EDT, summer). Adjust if DST changes.
-    - cron: "5 11 * * *"
+    # 01:00 ET = 05:00 UTC (EDT, summer). Adjust if DST changes.
+    - cron: "0 5 * * *"
   workflow_dispatch: {}
   push:
     branches: [main]
