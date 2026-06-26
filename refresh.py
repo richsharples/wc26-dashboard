@@ -202,8 +202,20 @@ def resolve_r32(r32_def, group_tables, thirds):
     for fx in r32_def:
         a_label = resolve_slot(fx["a"], group_tables, qualified_thirds)
         b_label = resolve_slot(fx["b"], group_tables, qualified_thirds)
-        rows.append({"date": fx["date"], "venue": fx["venue"], "a": a_label, "b": b_label})
+        rows.append({"date": fx["date"], "venue": fx["venue"], "utc": fx.get("utc", ""), "a": a_label, "b": b_label})
     return rows
+
+
+def render_r32_js(r32):
+    rows_js = ",\n  ".join(
+        "{ date: " + json.dumps(m["date"]) +
+        ", venue: " + json.dumps(m["venue"]) +
+        ", utc: " + json.dumps(m["utc"]) +
+        ", a: " + json.dumps(m["a"], ensure_ascii=False) +
+        ", b: " + json.dumps(m["b"], ensure_ascii=False) + " }"
+        for m in r32
+    )
+    return "[\n  " + rows_js + "\n]"
 
 
 def resolve_slot(slot, group_tables, qualified_thirds):
@@ -289,7 +301,7 @@ def render_favorites_html(favs, group_tables, team_to_group):
     return "\n".join(cards)
 
 
-def render_fixtures_html(fixtures, now):
+def render_fixtures_data(fixtures, now):
     window_end = now + datetime.timedelta(hours=60)
     upcoming = []
     for f in fixtures:
@@ -303,32 +315,23 @@ def render_fixtures_html(fixtures, now):
             upcoming.append((dt, f))
     upcoming.sort(key=lambda x: x[0])
 
-    blocks = []
-    for dt, f in upcoming[:24]:
-        grp = f"Group {f['group']}" if f["group"] else ""
-        if f["completed"]:
-            blocks.append(
-                f'<div class="fixture"><div class="grp">{grp} — Final</div>'
-                f'<div class="teams">{f["home"]} {f["home_score"]}–{f["away_score"]} {f["away"]}</div>'
-                f'<div class="time">Full-time — {f["city"] or f["venue"]}</div></div>'
-            )
-        elif f["state"] == "in":
-            blocks.append(
-                f'<div class="fixture live"><div class="grp">{grp}</div>'
-                f'<div class="teams"><span class="live-dot"></span>{f["home"]} vs {f["away"]}</div>'
-                f'<div class="time">Live — {f["city"] or f["venue"]}</div></div>'
-            )
-        else:
-            local = dt.strftime("%a %b %-d, %-I:%M%p UTC")
-            blocks.append(
-                f'<div class="fixture"><div class="grp">{grp}</div>'
-                f'<div class="teams">{f["home"]} vs {f["away"]}</div>'
-                f'<div class="time">{local} — {f["city"] or f["venue"]}</div></div>'
-            )
-    return "\n".join(blocks)
+    items = []
+    for _dt, f in upcoming[:24]:
+        items.append({
+            "utc": f["date"],
+            "group": f.get("group") or "",
+            "home": f["home"],
+            "away": f["away"],
+            "homeScore": f.get("home_score"),
+            "awayScore": f.get("away_score"),
+            "completed": f["completed"],
+            "state": f["state"] or "",
+            "venue": f.get("city") or f.get("venue") or "",
+        })
+    return json.dumps(items, ensure_ascii=False)
 
 
-def patch_html(html, groups_js, thirds_js, fixtures_html, favorites_html, timestamp_text):
+def patch_html(html, groups_js, thirds_js, r32_js, fixtures_json, favorites_html, now):
     html = re.sub(
         r'(<section class="fav-banner">)(.*?)(</section>)',
         lambda m: m.group(1) + "\n" + favorites_html + "\n" + m.group(3),
@@ -336,14 +339,17 @@ def patch_html(html, groups_js, thirds_js, fixtures_html, favorites_html, timest
     )
     html = re.sub(r"const groups = \[.*?\];", lambda m: f"const groups = {groups_js};", html, count=1, flags=re.S)
     html = re.sub(r"const thirds = \[.*?\];", lambda m: f"const thirds = {thirds_js};", html, count=1, flags=re.S)
+    html = re.sub(r"const r32 = \[.*?\];", lambda m: f"const r32 = {r32_js};", html, count=1, flags=re.S)
     html = re.sub(
-        r'(<div class="fixtures-grid" id="fixtures">)(.*?)(\s*</div>\s*<div class="pending-note">)',
-        lambda m: m.group(1) + "\n" + fixtures_html + m.group(3),
+        r'const fixturesData = \[.*?\];',
+        f'const fixturesData = {fixtures_json};',
         html, count=1, flags=re.S,
     )
+    utc_iso = now.strftime("%Y-%m-%dT%H:%M:%SZ")
+    utc_text = now.strftime("%b %-d, %Y, %H:%M UTC") + " — auto-refreshed"
     html = re.sub(
-        r'(<b id="updated-at">)(.*?)(</b>)',
-        lambda m: m.group(1) + timestamp_text + m.group(3),
+        r'<b id="updated-at"[^>]*>.*?</b>',
+        f'<b id="updated-at" data-utc="{utc_iso}">{utc_text}</b>',
         html, count=1, flags=re.S,
     )
     return html
@@ -358,20 +364,20 @@ def main():
     stats, fixtures = parse_events(events, team_to_group)
     group_tables = build_group_tables(groups_def, stats)
     thirds = build_thirds(group_tables)
-    r32 = resolve_r32(data["r32"], group_tables, thirds)  # noqa: F841 (rendered separately if/when wired into template)
+    r32 = resolve_r32(data["r32"], group_tables, thirds)
 
     favs = parse_favorites((HERE / "favorites.md").read_text(encoding="utf-8"))
 
     groups_js = render_groups_js(groups_def, group_tables, fixtures)
     thirds_js = render_thirds_js(thirds)
+    r32_js = render_r32_js(r32)
     now = datetime.datetime.now(datetime.timezone.utc)
-    fixtures_html = render_fixtures_html(fixtures, now)
+    fixtures_json = render_fixtures_data(fixtures, now)
     favorites_html = render_favorites_html(favs, group_tables, team_to_group)
-    timestamp_text = now.strftime("%b %-d, %Y, %H:%M UTC") + " — auto-refreshed"
 
     index_path = HERE / "index.html"
     html = index_path.read_text(encoding="utf-8")
-    new_html = patch_html(html, groups_js, thirds_js, fixtures_html, favorites_html, timestamp_text)
+    new_html = patch_html(html, groups_js, thirds_js, r32_js, fixtures_json, favorites_html, now)
     index_path.write_text(new_html, encoding="utf-8")
     print(f"Wrote {index_path} — {len(stats)} teams with results, {len(fixtures)} fixtures parsed.")
 

@@ -108,6 +108,9 @@
   .caveat { font-size: 12px; color: #5a6172; margin-top: 8px; }
   footer { font-size: 11px; color: #97a0ad; margin-top: 30px; border-top: 1px solid #e2e5ea; padding-top: 12px; }
   footer a { color: #5a6172; }
+  .fixture-pane { margin-bottom: 16px; }
+  .pane-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: #5a6172; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid #eef0f3; }
+  #no-fixtures { font-size: 12px; color: #97a0ad; padding: 8px 0; }
 </style>
 </head>
 <body>
@@ -118,35 +121,30 @@
     <h1>🏆 FIFA World Cup 2026 — Dashboard</h1>
     <div class="sub">Upcoming fixtures · group standings · projected Round of 32 field</div>
   </div>
-  <div class="updated">Last refreshed: <b id="updated-at">Jun 25, 2026, 23:23 UTC — auto-refreshed</b></div>
+  <div class="updated">Last refreshed: <b id="updated-at" data-utc="2026-06-26T00:52:15Z">Jun 26, 2026, 00:52 UTC — auto-refreshed</b></div>
 </header>
 
 <section class="fav-banner">
-<div class="fav-card" style="background:linear-gradient(135deg,#1d2d50,#3c3b6e)"><div><span class="flag">🇺🇸</span><span class="name">USA — Group D</span></div><div class="stat-row"><div>Played<b>2</b></div><div>Pts<b>6</b></div><div>GD<b>+5</b></div><div>Rank<b>1st</b></div></div><div class="note">Already through to Round of 32. A win secures Group D top spot outright.</div></div>
-<div class="fav-card" style="background:linear-gradient(135deg,#7a0c0c,#a11d1d)"><div><span class="flag">🏴</span><span class="name">England — Group L</span></div><div class="stat-row"><div>Played<b>2</b></div><div>Pts<b>4</b></div><div>GD<b>+2</b></div><div>Rank<b>1st</b></div></div><div class="note">Level on points with Ghana. Win or draw vs Panama keeps England top of Group L.</div></div>
+<div class="fav-card" style="background:linear-gradient(135deg,#1d2d50,#3c3b6e)"><div><span class="flag">🇺🇸</span><span class="name">USA — Group D</span></div><div class="stat-row"><div>Played<b>0</b></div><div>Pts<b>0</b></div><div>GD<b>0</b></div><div>Rank<b>1st</b></div></div><div class="note">Already through to Round of 32. A win secures Group D top spot outright.</div></div>
+<div class="fav-card" style="background:linear-gradient(135deg,#7a0c0c,#a11d1d)"><div><span class="flag">🏴</span><span class="name">England — Group L</span></div><div class="stat-row"><div>Played<b>0</b></div><div>Pts<b>0</b></div><div>GD<b>0</b></div><div>Rank<b>1st</b></div></div><div class="note">Level on points with Ghana. Win or draw vs Panama keeps England top of Group L.</div></div>
 </section>
 
 <details class="panel" open>
-  <summary>Today &amp; Upcoming Fixtures <span class="chev">▶</span></summary>
-  <div class="fixtures-grid" id="fixtures">
-<div class="fixture"><div class="grp">Group E — Final</div><div class="teams">Curaçao 0–2 Ivory Coast</div><div class="time">Full-time — Philadelphia, Pennsylvania</div></div>
-<div class="fixture"><div class="grp">Group E — Final</div><div class="teams">Ecuador 2–1 Germany</div><div class="time">Full-time — East Rutherford, New Jersey</div></div>
-<div class="fixture live"><div class="grp">Group F</div><div class="teams"><span class="live-dot"></span>Japan vs Sweden</div><div class="time">Live — Arlington, Texas</div></div>
-<div class="fixture live"><div class="grp">Group F</div><div class="teams"><span class="live-dot"></span>Tunisia vs Netherlands</div><div class="time">Live — Kansas City, Missouri</div></div>
-<div class="fixture"><div class="grp">Group D</div><div class="teams">Paraguay vs Australia</div><div class="time">Fri Jun 26, 2:00AM UTC — Santa Clara, California</div></div>
-<div class="fixture"><div class="grp">Group D</div><div class="teams">Türkiye vs United States</div><div class="time">Fri Jun 26, 2:00AM UTC — Inglewood, California</div></div>
-<div class="fixture"><div class="grp">Group I</div><div class="teams">Norway vs France</div><div class="time">Fri Jun 26, 7:00PM UTC — Foxborough, Massachusetts</div></div>
-<div class="fixture"><div class="grp">Group I</div><div class="teams">Senegal vs Iraq</div><div class="time">Fri Jun 26, 7:00PM UTC — Toronto</div></div>
-<div class="fixture"><div class="grp">Group H</div><div class="teams">Cape Verde vs Saudi Arabia</div><div class="time">Sat Jun 27, 12:00AM UTC — Houston, Texas</div></div>
-<div class="fixture"><div class="grp">Group H</div><div class="teams">Uruguay vs Spain</div><div class="time">Sat Jun 27, 12:00AM UTC — Guadalajara</div></div>
-<div class="fixture"><div class="grp">Group G</div><div class="teams">Egypt vs Iran</div><div class="time">Sat Jun 27, 3:00AM UTC — Seattle, Washington</div></div>
-<div class="fixture"><div class="grp">Group G</div><div class="teams">New Zealand vs Belgium</div><div class="time">Sat Jun 27, 3:00AM UTC — Vancouver</div></div>
-<div class="fixture"><div class="grp">Group L</div><div class="teams">Croatia vs Ghana</div><div class="time">Sat Jun 27, 9:00PM UTC — Philadelphia, Pennsylvania</div></div>
-<div class="fixture"><div class="grp">Group L</div><div class="teams">Panama vs England</div><div class="time">Sat Jun 27, 9:00PM UTC — East Rutherford, New Jersey</div></div>
-<div class="fixture"><div class="grp">Group K</div><div class="teams">Colombia vs Portugal</div><div class="time">Sat Jun 27, 11:30PM UTC — Miami Gardens, Florida</div></div>
-<div class="fixture"><div class="grp">Group K</div><div class="teams">Congo DR vs Uzbekistan</div><div class="time">Sat Jun 27, 11:30PM UTC — Atlanta, Georgia</div></div>
-<div class="fixture"><div class="grp">Group J</div><div class="teams">Algeria vs Austria</div><div class="time">Sun Jun 28, 2:00AM UTC — Kansas City, Missouri</div></div>
-<div class="fixture"><div class="grp">Group J</div><div class="teams">Jordan vs Argentina</div><div class="time">Sun Jun 28, 2:00AM UTC — Arlington, Texas</div></div>
+  <summary>Upcoming Fixtures <span class="chev">▶</span></summary>
+  <div id="fixtures-panes">
+    <div class="fixture-pane" id="pane-today">
+      <div class="pane-title">Today</div>
+      <div class="fixtures-grid" id="fixtures-today"></div>
+    </div>
+    <div class="fixture-pane" id="pane-tomorrow">
+      <div class="pane-title">Tomorrow</div>
+      <div class="fixtures-grid" id="fixtures-tomorrow"></div>
+    </div>
+    <div class="fixture-pane" id="pane-upcoming">
+      <div class="pane-title">Upcoming</div>
+      <div class="fixtures-grid" id="fixtures-upcoming"></div>
+    </div>
+    <div id="no-fixtures" style="display:none">No upcoming fixtures.</div>
   </div>
   <div class="pending-note">Group stage wraps up June 27. Round of 32 kicks off June 28.</div>
 </details>
@@ -185,43 +183,45 @@
 
 <script>
 const groups = [
-  { name: "A", status: "Final", teams: [["Mexico",3,3,0,0,6,0,9,"q"], ["South Africa",3,1,1,1,2,3,4,"q"], ["South Korea",3,1,0,2,2,3,3,"bub"], ["Czechia",3,0,1,2,2,6,1,"out"]] },
-  { name: "B", status: "Final", teams: [["Switzerland",3,2,1,0,7,3,7,"q"], ["Canada",3,1,1,1,8,3,4,"q"], ["Bosnia-Herzegovina",3,1,1,1,5,6,4,"bub"], ["Qatar",3,0,1,2,2,10,1,"out"]] },
-  { name: "C", status: "Final", teams: [["Brazil",3,2,1,0,7,1,7,"q"], ["Morocco",3,2,1,0,6,3,7,"q"], ["Scotland",3,1,0,2,1,4,3,"bub"], ["Haiti",3,0,0,3,2,8,0,"out"]] },
-  { name: "D", status: "2 games left", teams: [["United States",2,2,0,0,6,1,6,"q"], ["Australia",2,1,0,1,2,2,3,"q"], ["Paraguay",2,1,0,1,2,4,3,"bub"], ["Türkiye",2,0,0,2,0,3,0,"out"]] },
-  { name: "E", status: "Final", teams: [["Germany",3,2,0,1,10,4,6,"q"], ["Ivory Coast",3,2,0,1,4,2,6,"q"], ["Ecuador",3,1,1,1,2,2,4,"bub"], ["Curaçao",3,0,1,2,1,9,1,"out"]] },
-  { name: "F", status: "2 games left", teams: [["Netherlands",2,1,1,0,7,3,4,"q"], ["Japan",2,1,1,0,6,2,4,"q"], ["Sweden",2,1,0,1,6,6,3,"bub"], ["Tunisia",2,0,0,2,1,9,0,"out"]] },
-  { name: "G", status: "2 games left", teams: [["Egypt",2,1,1,0,4,2,4,"q"], ["Iran",2,0,2,0,2,2,2,"q"], ["Belgium",2,0,2,0,1,1,2,"bub"], ["New Zealand",2,0,1,1,3,5,1,"out"]] },
-  { name: "H", status: "2 games left", teams: [["Spain",2,1,1,0,4,0,4,"q"], ["Uruguay",2,0,2,0,3,3,2,"q"], ["Cape Verde",2,0,2,0,2,2,2,"bub"], ["Saudi Arabia",2,0,1,1,1,5,1,"out"]] },
-  { name: "I", status: "2 games left", teams: [["France",2,2,0,0,6,1,6,"q"], ["Norway",2,2,0,0,7,3,6,"q"], ["Senegal",2,0,0,2,3,6,0,"bub"], ["Iraq",2,0,0,2,1,7,0,"out"]] },
-  { name: "J", status: "2 games left", teams: [["Argentina",2,2,0,0,5,0,6,"q"], ["Austria",2,1,0,1,3,3,3,"q"], ["Algeria",2,1,0,1,2,4,3,"bub"], ["Jordan",2,0,0,2,2,5,0,"out"]] },
-  { name: "K", status: "2 games left", teams: [["Colombia",2,2,0,0,4,1,6,"q"], ["Portugal",2,1,1,0,6,1,4,"q"], ["Congo DR",2,0,1,1,1,2,1,"bub"], ["Uzbekistan",2,0,0,2,1,8,0,"out"]] },
-  { name: "L", status: "2 games left", teams: [["England",2,1,1,0,4,2,4,"q"], ["Ghana",2,1,1,0,1,0,4,"q"], ["Croatia",2,1,0,1,3,4,3,"bub"], ["Panama",2,0,0,2,0,2,0,"out"]] }
+  { name: "A", status: "In progress", teams: [["Mexico",0,0,0,0,0,0,0,"q"], ["South Africa",0,0,0,0,0,0,0,"q"], ["South Korea",0,0,0,0,0,0,0,"bub"], ["Czechia",0,0,0,0,0,0,0,"out"]] },
+  { name: "B", status: "In progress", teams: [["Switzerland",0,0,0,0,0,0,0,"q"], ["Canada",0,0,0,0,0,0,0,"q"], ["Bosnia-Herzegovina",0,0,0,0,0,0,0,"bub"], ["Qatar",0,0,0,0,0,0,0,"out"]] },
+  { name: "C", status: "In progress", teams: [["Brazil",0,0,0,0,0,0,0,"q"], ["Morocco",0,0,0,0,0,0,0,"q"], ["Scotland",0,0,0,0,0,0,0,"bub"], ["Haiti",0,0,0,0,0,0,0,"out"]] },
+  { name: "D", status: "In progress", teams: [["United States",0,0,0,0,0,0,0,"q"], ["Australia",0,0,0,0,0,0,0,"q"], ["Paraguay",0,0,0,0,0,0,0,"bub"], ["Türkiye",0,0,0,0,0,0,0,"out"]] },
+  { name: "E", status: "In progress", teams: [["Germany",0,0,0,0,0,0,0,"q"], ["Ivory Coast",0,0,0,0,0,0,0,"q"], ["Ecuador",0,0,0,0,0,0,0,"bub"], ["Curaçao",0,0,0,0,0,0,0,"out"]] },
+  { name: "F", status: "In progress", teams: [["Netherlands",0,0,0,0,0,0,0,"q"], ["Japan",0,0,0,0,0,0,0,"q"], ["Sweden",0,0,0,0,0,0,0,"bub"], ["Tunisia",0,0,0,0,0,0,0,"out"]] },
+  { name: "G", status: "In progress", teams: [["Egypt",0,0,0,0,0,0,0,"q"], ["Iran",0,0,0,0,0,0,0,"q"], ["Belgium",0,0,0,0,0,0,0,"bub"], ["New Zealand",0,0,0,0,0,0,0,"out"]] },
+  { name: "H", status: "In progress", teams: [["Spain",0,0,0,0,0,0,0,"q"], ["Uruguay",0,0,0,0,0,0,0,"q"], ["Cape Verde",0,0,0,0,0,0,0,"bub"], ["Saudi Arabia",0,0,0,0,0,0,0,"out"]] },
+  { name: "I", status: "In progress", teams: [["France",0,0,0,0,0,0,0,"q"], ["Norway",0,0,0,0,0,0,0,"q"], ["Senegal",0,0,0,0,0,0,0,"bub"], ["Iraq",0,0,0,0,0,0,0,"out"]] },
+  { name: "J", status: "In progress", teams: [["Argentina",0,0,0,0,0,0,0,"q"], ["Austria",0,0,0,0,0,0,0,"q"], ["Algeria",0,0,0,0,0,0,0,"bub"], ["Jordan",0,0,0,0,0,0,0,"out"]] },
+  { name: "K", status: "In progress", teams: [["Colombia",0,0,0,0,0,0,0,"q"], ["Portugal",0,0,0,0,0,0,0,"q"], ["Congo DR",0,0,0,0,0,0,0,"bub"], ["Uzbekistan",0,0,0,0,0,0,0,"out"]] },
+  { name: "L", status: "In progress", teams: [["England",0,0,0,0,0,0,0,"q"], ["Ghana",0,0,0,0,0,0,0,"q"], ["Croatia",0,0,0,0,0,0,0,"bub"], ["Panama",0,0,0,0,0,0,0,"out"]] }
 ];
 
 const r32 = [
-  { date: "Sun, Jun 28", venue: "Inglewood, CA — 3:00pm ET", a: "South Africa (A2)", b: "Canada (B2)" },
-  { date: "Mon, Jun 29", venue: "Houston — 1:00pm ET", a: "Brazil (C1)", b: "Group F runner-up — TBD" },
-  { date: "Mon, Jun 29", venue: "Foxborough, MA — 4:30pm ET", a: "Group E winner — TBD", b: "3rd place A/B/C/D/F — TBD" },
-  { date: "Mon, Jun 29", venue: "Guadalupe, MX — 9:00pm ET", a: "Group F winner — TBD", b: "Morocco (C2)" },
-  { date: "Tue, Jun 30", venue: "Arlington, TX — 1:00pm ET", a: "Group E runner-up — TBD", b: "Group I runner-up — TBD" },
-  { date: "Tue, Jun 30", venue: "East Rutherford, NJ — 5:00pm ET", a: "Group I winner — TBD", b: "3rd place C/D/F/G/H — TBD" },
-  { date: "Tue, Jun 30", venue: "Mexico City — 9:00pm ET", a: "Mexico (A1)", b: "3rd place C/E/F/H/I — TBD" },
-  { date: "Wed, Jul 1", venue: "Atlanta — 12:00pm ET", a: "Group L winner — TBD", b: "3rd place E/H/I/J/K — TBD" },
-  { date: "Wed, Jul 1", venue: "Seattle — 4:00pm ET", a: "Group G winner — TBD", b: "3rd place A/E/H/I/J — TBD" },
-  { date: "Wed, Jul 1", venue: "Santa Clara, CA — 8:00pm ET", a: "Group D winner — TBD", b: "3rd place B/E/F/I/J — TBD" },
-  { date: "Thu, Jul 2", venue: "Inglewood, CA — 3:00pm ET", a: "Group H winner — TBD", b: "Group J runner-up — TBD" },
-  { date: "Thu, Jul 2", venue: "Toronto — 7:00pm ET", a: "Group K runner-up — TBD", b: "Group L runner-up — TBD" },
-  { date: "Thu, Jul 2", venue: "Vancouver — 11:00pm ET", a: "Switzerland (B1)", b: "3rd place E/F/G/I/J — TBD" },
-  { date: "Fri, Jul 3", venue: "Arlington, TX — 2:00pm ET", a: "Group D runner-up — TBD", b: "Group G runner-up — TBD" },
-  { date: "Fri, Jul 3", venue: "Miami Gardens, FL — 6:00pm ET", a: "Group J winner — TBD", b: "Group H runner-up — TBD" },
-  { date: "Fri, Jul 3", venue: "Kansas City — 9:30pm ET", a: "Group K winner — TBD", b: "3rd place D/E/I/J/L — TBD" },
+  { date: "Sun, Jun 28", venue: "Inglewood, CA", utc: "2026-06-28T19:00:00Z", a: "Group A runner-up — TBD", b: "Group B runner-up — TBD" },
+  { date: "Mon, Jun 29", venue: "Houston", utc: "2026-06-29T17:00:00Z", a: "Group C winner — TBD", b: "Group F runner-up — TBD" },
+  { date: "Mon, Jun 29", venue: "Foxborough, MA", utc: "2026-06-29T20:30:00Z", a: "Group E winner — TBD", b: "3rd place A/B/C/D/F — TBD" },
+  { date: "Mon, Jun 29", venue: "Guadalupe, MX", utc: "2026-06-30T01:00:00Z", a: "Group F winner — TBD", b: "Group C runner-up — TBD" },
+  { date: "Tue, Jun 30", venue: "Arlington, TX", utc: "2026-06-30T17:00:00Z", a: "Group E runner-up — TBD", b: "Group I runner-up — TBD" },
+  { date: "Tue, Jun 30", venue: "East Rutherford, NJ", utc: "2026-06-30T21:00:00Z", a: "Group I winner — TBD", b: "3rd place C/D/F/G/H — TBD" },
+  { date: "Tue, Jun 30", venue: "Mexico City", utc: "2026-07-01T01:00:00Z", a: "Group A winner — TBD", b: "3rd place C/E/F/H/I — TBD" },
+  { date: "Wed, Jul 1", venue: "Atlanta", utc: "2026-07-01T16:00:00Z", a: "Group L winner — TBD", b: "3rd place E/H/I/J/K — TBD" },
+  { date: "Wed, Jul 1", venue: "Seattle", utc: "2026-07-01T20:00:00Z", a: "Group G winner — TBD", b: "3rd place A/E/H/I/J — TBD" },
+  { date: "Wed, Jul 1", venue: "Santa Clara, CA", utc: "2026-07-02T00:00:00Z", a: "Group D winner — TBD", b: "3rd place B/E/F/I/J — TBD" },
+  { date: "Thu, Jul 2", venue: "Inglewood, CA", utc: "2026-07-02T19:00:00Z", a: "Group H winner — TBD", b: "Group J runner-up — TBD" },
+  { date: "Thu, Jul 2", venue: "Toronto", utc: "2026-07-02T23:00:00Z", a: "Group K runner-up — TBD", b: "Group L runner-up — TBD" },
+  { date: "Thu, Jul 2", venue: "Vancouver", utc: "2026-07-03T03:00:00Z", a: "Group B winner — TBD", b: "3rd place E/F/G/I/J — TBD" },
+  { date: "Fri, Jul 3", venue: "Arlington, TX", utc: "2026-07-03T18:00:00Z", a: "Group D runner-up — TBD", b: "Group G runner-up — TBD" },
+  { date: "Fri, Jul 3", venue: "Miami Gardens, FL", utc: "2026-07-03T22:00:00Z", a: "Group J winner — TBD", b: "Group H runner-up — TBD" },
+  { date: "Fri, Jul 3", venue: "Kansas City", utc: "2026-07-04T01:30:00Z", a: "Group K winner — TBD", b: "3rd place D/E/I/J/L — TBD" }
 ];
 const r32El = document.getElementById("r32");
-r32El.innerHTML = r32.map(m => `
-  <div class="fixture"><div class="grp">Round of 32 — ${m.date}</div>
-  <div class="teams">${m.a} vs ${m.b}</div>
-  <div class="time">${m.venue}</div></div>`).join("");
+r32El.innerHTML = r32.map(m => {
+  const timeVenue = m.utc
+    ? new Date(m.utc).toLocaleString(undefined, {weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit',timeZoneName:'short'}) + ' — ' + m.venue
+    : m.date + ' — ' + m.venue;
+  return `<div class="fixture"><div class="grp">Round of 32 — ${m.date}</div><div class="teams">${m.a} vs ${m.b}</div><div class="time">${timeVenue}</div></div>`;
+}).join("");
 
 const groupsEl = document.getElementById("groups");
 groups.forEach(g => {
@@ -241,20 +241,81 @@ groups.forEach(g => {
   groupsEl.appendChild(card);
 });
 
+const fixturesData = [];
+
+function _esc(s) { return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function _fmtTime(utc) {
+  return new Date(utc).toLocaleString(undefined, {weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit',timeZoneName:'short'});
+}
+function _renderFixtureCard(f) {
+  const grp = f.group ? 'Group ' + _esc(f.group) : '';
+  if (f.completed) {
+    return '<div class="fixture"><div class="grp">' + grp + ' — Final</div>'
+      + '<div class="teams">' + _esc(f.home) + ' ' + _esc(f.homeScore) + '–' + _esc(f.awayScore) + ' ' + _esc(f.away) + '</div>'
+      + '<div class="time">Full-time — ' + _esc(f.venue) + '</div></div>';
+  }
+  if (f.state === 'in') {
+    return '<div class="fixture live"><div class="grp">' + grp + '</div>'
+      + '<div class="teams"><span class="live-dot"></span>' + _esc(f.home) + ' vs ' + _esc(f.away) + '</div>'
+      + '<div class="time">Live — ' + _esc(f.venue) + '</div></div>';
+  }
+  return '<div class="fixture"><div class="grp">' + grp + '</div>'
+    + '<div class="teams">' + _esc(f.home) + ' vs ' + _esc(f.away) + '</div>'
+    + '<div class="time">' + _fmtTime(f.utc) + ' — ' + _esc(f.venue) + '</div></div>';
+}
+(function renderFixturePanes() {
+  const now = new Date();
+  function dateKey(d) {
+    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  }
+  const todayStr = dateKey(now);
+  const tmw = new Date(now); tmw.setDate(tmw.getDate() + 1);
+  const tomorrowStr = dateKey(tmw);
+  const panes = {today:[], tomorrow:[], upcoming:[]};
+  fixturesData.forEach(f => {
+    if (f.state === 'in') { panes.today.push(f); return; }
+    const d = dateKey(new Date(f.utc));
+    if (d <= todayStr) panes.today.push(f);
+    else if (d === tomorrowStr) panes.tomorrow.push(f);
+    else panes.upcoming.push(f);
+  });
+  function fmtDate(d) { return d.toLocaleDateString(undefined, {weekday:'short',month:'short',day:'numeric'}); }
+  document.querySelector('#pane-today .pane-title').textContent = 'Today — ' + fmtDate(now);
+  document.querySelector('#pane-tomorrow .pane-title').textContent = 'Tomorrow — ' + fmtDate(tmw);
+  ['today','tomorrow','upcoming'].forEach(pane => {
+    const grid = document.getElementById('fixtures-' + pane);
+    const paneEl = document.getElementById('pane-' + pane);
+    if (!grid || !paneEl) return;
+    const items = panes[pane];
+    if (items.length === 0) { paneEl.style.display = 'none'; return; }
+    grid.innerHTML = items.map(_renderFixtureCard).join('');
+  });
+  const anyVisible = ['today','tomorrow','upcoming'].some(p => document.getElementById('pane-'+p).style.display !== 'none');
+  document.getElementById('no-fixtures').style.display = anyVisible ? 'none' : '';
+})();
+
+(function localizeUpdatedAt() {
+  const el = document.getElementById('updated-at');
+  if (el && el.dataset.utc) {
+    const dt = new Date(el.dataset.utc);
+    el.textContent = dt.toLocaleString(undefined, {year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit',timeZoneName:'short'}) + ' — auto-refreshed';
+  }
+})();
+
 // Third place provisional ranking
 const thirds = [
-  ["Ecuador","E",3,4,0,2],
-  ["Bosnia-Herzegovina","B",3,4,-1,5],
-  ["Sweden","F",2,3,0,6],
-  ["Croatia","L",2,3,-1,3],
-  ["South Korea","A",3,3,-1,2],
-  ["Paraguay","D",2,3,-2,2],
-  ["Algeria","J",2,3,-2,2],
-  ["Scotland","C",3,3,-3,1],
-  ["Cape Verde","H",2,2,0,2],
-  ["Belgium","G",2,2,0,1],
-  ["Congo DR","K",2,1,-1,1],
-  ["Senegal","I",2,0,-3,3]
+  ["South Korea","A",0,0,0,0],
+  ["Bosnia-Herzegovina","B",0,0,0,0],
+  ["Scotland","C",0,0,0,0],
+  ["Paraguay","D",0,0,0,0],
+  ["Ecuador","E",0,0,0,0],
+  ["Sweden","F",0,0,0,0],
+  ["Belgium","G",0,0,0,0],
+  ["Cape Verde","H",0,0,0,0],
+  ["Senegal","I",0,0,0,0],
+  ["Algeria","J",0,0,0,0],
+  ["Congo DR","K",0,0,0,0],
+  ["Croatia","L",0,0,0,0]
 ];
 const thirdEl = document.getElementById("third-table");
 let thRows = thirds.map((t,i) => {

@@ -14,21 +14,21 @@
     "L": ["England", "Ghana", "Croatia", "Panama"]
   },
   "r32": [
-    { "date": "Sun, Jun 28", "venue": "Inglewood, CA — 3:00pm ET", "a": {"kind": "seed", "group": "A", "pos": 2}, "b": {"kind": "seed", "group": "B", "pos": 2} },
-    { "date": "Mon, Jun 29", "venue": "Houston — 1:00pm ET", "a": {"kind": "seed", "group": "C", "pos": 1}, "b": {"kind": "runnerup", "group": "F"} },
-    { "date": "Mon, Jun 29", "venue": "Foxborough, MA — 4:30pm ET", "a": {"kind": "winner", "group": "E"}, "b": {"kind": "thirdpool", "label": "3rd place A/B/C/D/F"} },
-    { "date": "Mon, Jun 29", "venue": "Guadalupe, MX — 9:00pm ET", "a": {"kind": "winner", "group": "F"}, "b": {"kind": "seed", "group": "C", "pos": 2} },
-    { "date": "Tue, Jun 30", "venue": "Arlington, TX — 1:00pm ET", "a": {"kind": "runnerup", "group": "E"}, "b": {"kind": "runnerup", "group": "I"} },
-    { "date": "Tue, Jun 30", "venue": "East Rutherford, NJ — 5:00pm ET", "a": {"kind": "winner", "group": "I"}, "b": {"kind": "thirdpool", "label": "3rd place C/D/F/G/H"} },
-    { "date": "Tue, Jun 30", "venue": "Mexico City — 9:00pm ET", "a": {"kind": "seed", "group": "A", "pos": 1}, "b": {"kind": "thirdpool", "label": "3rd place C/E/F/H/I"} },
-    { "date": "Wed, Jul 1", "venue": "Atlanta — 12:00pm ET", "a": {"kind": "winner", "group": "L"}, "b": {"kind": "thirdpool", "label": "3rd place E/H/I/J/K"} },
-    { "date": "Wed, Jul 1", "venue": "Seattle — 4:00pm ET", "a": {"kind": "winner", "group": "G"}, "b": {"kind": "thirdpool", "label": "3rd place A/E/H/I/J"} },
-    { "date": "Wed, Jul 1", "venue": "Santa Clara, CA — 8:00pm ET", "a": {"kind": "winner", "group": "D"}, "b": {"kind": "thirdpool", "label": "3rd place B/E/F/I/J"} },
-    { "date": "Thu, Jul 2", "venue": "Inglewood, CA — 3:00pm ET", "a": {"kind": "winner", "group": "H"}, "b": {"kind": "runnerup", "group": "J"} },
-    { "date": "Thu, Jul 2", "venue": "Toronto — 7:00pm ET", "a": {"kind": "runnerup", "group": "K"}, "b": {"kind": "runnerup", "group": "L"} },
-    { "date": "Thu, Jul 2", "venue": "Vancouver — 11:00pm ET", "a": {"kind": "seed", "group": "B", "pos": 1}, "b": {"kind": "thirdpool", "label": "3rd place E/F/G/I/J"} },
-    { "date": "Fri, Jul 3", "venue": "Arlington, TX — 2:00pm ET", "a": {"kind": "runnerup", "group": "D"}, "b": {"kind": "runnerup", "group": "G"} },
-    { "date": "Fri, Jul 3", "venue": "Miami Gardens, FL — 6:00pm ET", "a": {"kind": "winner", "group": "J"}, "b": {"kind": "runnerup", "group": "H"} },
-    { "date": "Fri, Jul 3", "venue": "Kansas City — 9:30pm ET", "a": {"kind": "winner", "group": "K"}, "b": {"kind": "thirdpool", "label": "3rd place D/E/I/J/L"} }
+    { "date": "Sun, Jun 28", "venue": "Inglewood, CA", "utc": "2026-06-28T19:00:00Z", "a": {"kind": "seed", "group": "A", "pos": 2}, "b": {"kind": "seed", "group": "B", "pos": 2} },
+    { "date": "Mon, Jun 29", "venue": "Houston", "utc": "2026-06-29T17:00:00Z", "a": {"kind": "seed", "group": "C", "pos": 1}, "b": {"kind": "runnerup", "group": "F"} },
+    { "date": "Mon, Jun 29", "venue": "Foxborough, MA", "utc": "2026-06-29T20:30:00Z", "a": {"kind": "winner", "group": "E"}, "b": {"kind": "thirdpool", "label": "3rd place A/B/C/D/F"} },
+    { "date": "Mon, Jun 29", "venue": "Guadalupe, MX", "utc": "2026-06-30T01:00:00Z", "a": {"kind": "winner", "group": "F"}, "b": {"kind": "seed", "group": "C", "pos": 2} },
+    { "date": "Tue, Jun 30", "venue": "Arlington, TX", "utc": "2026-06-30T17:00:00Z", "a": {"kind": "runnerup", "group": "E"}, "b": {"kind": "runnerup", "group": "I"} },
+    { "date": "Tue, Jun 30", "venue": "East Rutherford, NJ", "utc": "2026-06-30T21:00:00Z", "a": {"kind": "winner", "group": "I"}, "b": {"kind": "thirdpool", "label": "3rd place C/D/F/G/H"} },
+    { "date": "Tue, Jun 30", "venue": "Mexico City", "utc": "2026-07-01T01:00:00Z", "a": {"kind": "seed", "group": "A", "pos": 1}, "b": {"kind": "thirdpool", "label": "3rd place C/E/F/H/I"} },
+    { "date": "Wed, Jul 1", "venue": "Atlanta", "utc": "2026-07-01T16:00:00Z", "a": {"kind": "winner", "group": "L"}, "b": {"kind": "thirdpool", "label": "3rd place E/H/I/J/K"} },
+    { "date": "Wed, Jul 1", "venue": "Seattle", "utc": "2026-07-01T20:00:00Z", "a": {"kind": "winner", "group": "G"}, "b": {"kind": "thirdpool", "label": "3rd place A/E/H/I/J"} },
+    { "date": "Wed, Jul 1", "venue": "Santa Clara, CA", "utc": "2026-07-02T00:00:00Z", "a": {"kind": "winner", "group": "D"}, "b": {"kind": "thirdpool", "label": "3rd place B/E/F/I/J"} },
+    { "date": "Thu, Jul 2", "venue": "Inglewood, CA", "utc": "2026-07-02T19:00:00Z", "a": {"kind": "winner", "group": "H"}, "b": {"kind": "runnerup", "group": "J"} },
+    { "date": "Thu, Jul 2", "venue": "Toronto", "utc": "2026-07-02T23:00:00Z", "a": {"kind": "runnerup", "group": "K"}, "b": {"kind": "runnerup", "group": "L"} },
+    { "date": "Thu, Jul 2", "venue": "Vancouver", "utc": "2026-07-03T03:00:00Z", "a": {"kind": "seed", "group": "B", "pos": 1}, "b": {"kind": "thirdpool", "label": "3rd place E/F/G/I/J"} },
+    { "date": "Fri, Jul 3", "venue": "Arlington, TX", "utc": "2026-07-03T18:00:00Z", "a": {"kind": "runnerup", "group": "D"}, "b": {"kind": "runnerup", "group": "G"} },
+    { "date": "Fri, Jul 3", "venue": "Miami Gardens, FL", "utc": "2026-07-03T22:00:00Z", "a": {"kind": "winner", "group": "J"}, "b": {"kind": "runnerup", "group": "H"} },
+    { "date": "Fri, Jul 3", "venue": "Kansas City", "utc": "2026-07-04T01:30:00Z", "a": {"kind": "winner", "group": "K"}, "b": {"kind": "thirdpool", "label": "3rd place D/E/I/J/L"} }
   ]
 }
