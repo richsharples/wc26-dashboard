@@ -22,7 +22,7 @@ Fields (all optional except the team heading):
 - note: Already through to Round of 32. A win secures Group D top spot outright.
 
 ## England
-- flag: 🏴
+- flag: 🏴󠁧󠁢󠁥󠁮󠁧󠁿
 - label: England
 - color: #7a0c0c, #a11d1d
 - note: Level on points with Ghana. Win or draw vs Panama keeps England top of Group L.
