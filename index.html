@@ -111,6 +111,7 @@
   .fixture-pane { margin-bottom: 16px; }
   .pane-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: #5a6172; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid #eef0f3; }
   #no-fixtures { font-size: 12px; color: #97a0ad; padding: 8px 0; }
+  .fav-name { font-weight: 700; }
 </style>
 </head>
 <body>
@@ -182,6 +183,7 @@
 </div>
 
 <script>
+const favTeams = { "United States": { flag: "🇺🇸", color: "#1d2d50" }, "England": { flag: "🏴", color: "#7a0c0c" } };
 const groups = [
   { name: "A", status: "Final", teams: [["Mexico",3,3,0,0,6,0,9,"q"], ["South Africa",3,1,1,1,2,3,4,"q"], ["South Korea",3,1,0,2,2,3,3,"bub"], ["Czechia",3,0,1,2,2,6,1,"out"]] },
   { name: "B", status: "Final", teams: [["Switzerland",3,2,1,0,7,3,7,"q"], ["Canada",3,1,1,1,8,3,4,"q"], ["Bosnia-Herzegovina",3,1,1,1,5,6,4,"bub"], ["Qatar",3,0,1,2,2,10,1,"out"]] },
@@ -220,7 +222,7 @@ r32El.innerHTML = r32.map(m => {
   const timeVenue = m.utc
     ? new Date(m.utc).toLocaleString(undefined, {weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit',timeZoneName:'short'}) + ' — ' + m.venue
     : m.date + ' — ' + m.venue;
-  return `<div class="fixture"><div class="grp">Round of 32 — ${m.date}</div><div class="teams">${m.a} vs ${m.b}</div><div class="time">${timeVenue}</div></div>`;
+  return `<div class="fixture"><div class="grp">Round of 32 — ${m.date}</div><div class="teams">${_teamSpan(m.a)} vs ${_teamSpan(m.b)}</div><div class="time">${timeVenue}</div></div>`;
 }).join("");
 
 const groupsEl = document.getElementById("groups");
@@ -230,7 +232,7 @@ groups.forEach(g => {
   let rows = g.teams.map(t => {
     const [name,gp,w,d,l,f,a,p,cls] = t;
     const gd = f - a;
-    return `<tr class="${cls}"><td class="team">${name}</td><td>${gp}</td><td>${w}</td><td>${d}</td><td>${l}</td><td>${gd>0?'+':''}${gd}</td><td><b>${p}</b></td></tr>`;
+    return `<tr class="${cls}"><td class="team">${_teamSpan(name)}</td><td>${gp}</td><td>${w}</td><td>${d}</td><td>${l}</td><td>${gd>0?'+':''}${gd}</td><td><b>${p}</b></td></tr>`;
   }).join("");
   card.innerHTML = `
     <div class="gh"><span>GROUP ${g.name}</span><span class="status">${g.status}</span></div>
@@ -244,6 +246,14 @@ groups.forEach(g => {
 const fixturesData = [{"utc": "2026-06-25T23:00Z", "group": "F", "home": "Japan", "away": "Sweden", "homeScore": "1", "awayScore": "1", "completed": true, "state": "post", "venue": "Arlington, Texas"}, {"utc": "2026-06-25T23:00Z", "group": "F", "home": "Tunisia", "away": "Netherlands", "homeScore": "1", "awayScore": "3", "completed": true, "state": "post", "venue": "Kansas City, Missouri"}, {"utc": "2026-06-26T02:00Z", "group": "D", "home": "Paraguay", "away": "Australia", "homeScore": "0", "awayScore": "0", "completed": false, "state": "pre", "venue": "Santa Clara, California"}, {"utc": "2026-06-26T02:00Z", "group": "D", "home": "Türkiye", "away": "United States", "homeScore": "0", "awayScore": "0", "completed": false, "state": "pre", "venue": "Inglewood, California"}, {"utc": "2026-06-26T19:00Z", "group": "I", "home": "Norway", "away": "France", "homeScore": "0", "awayScore": "0", "completed": false, "state": "pre", "venue": "Foxborough, Massachusetts"}, {"utc": "2026-06-26T19:00Z", "group": "I", "home": "Senegal", "away": "Iraq", "homeScore": "0", "awayScore": "0", "completed": false, "state": "pre", "venue": "Toronto"}, {"utc": "2026-06-27T00:00Z", "group": "H", "home": "Cape Verde", "away": "Saudi Arabia", "homeScore": "0", "awayScore": "0", "completed": false, "state": "pre", "venue": "Houston, Texas"}, {"utc": "2026-06-27T00:00Z", "group": "H", "home": "Uruguay", "away": "Spain", "homeScore": "0", "awayScore": "0", "completed": false, "state": "pre", "venue": "Guadalajara"}, {"utc": "2026-06-27T03:00Z", "group": "G", "home": "Egypt", "away": "Iran", "homeScore": "0", "awayScore": "0", "completed": false, "state": "pre", "venue": "Seattle, Washington"}, {"utc": "2026-06-27T03:00Z", "group": "G", "home": "New Zealand", "away": "Belgium", "homeScore": "0", "awayScore": "0", "completed": false, "state": "pre", "venue": "Vancouver"}, {"utc": "2026-06-27T21:00Z", "group": "L", "home": "Croatia", "away": "Ghana", "homeScore": "0", "awayScore": "0", "completed": false, "state": "pre", "venue": "Philadelphia, Pennsylvania"}, {"utc": "2026-06-27T21:00Z", "group": "L", "home": "Panama", "away": "England", "homeScore": "0", "awayScore": "0", "completed": false, "state": "pre", "venue": "East Rutherford, New Jersey"}, {"utc": "2026-06-27T23:30Z", "group": "K", "home": "Colombia", "away": "Portugal", "homeScore": "0", "awayScore": "0", "completed": false, "state": "pre", "venue": "Miami Gardens, Florida"}, {"utc": "2026-06-27T23:30Z", "group": "K", "home": "Congo DR", "away": "Uzbekistan", "homeScore": "0", "awayScore": "0", "completed": false, "state": "pre", "venue": "Atlanta, Georgia"}, {"utc": "2026-06-28T02:00Z", "group": "J", "home": "Algeria", "away": "Austria", "homeScore": "0", "awayScore": "0", "completed": false, "state": "pre", "venue": "Kansas City, Missouri"}, {"utc": "2026-06-28T02:00Z", "group": "J", "home": "Jordan", "away": "Argentina", "homeScore": "0", "awayScore": "0", "completed": false, "state": "pre", "venue": "Arlington, Texas"}];
 
 function _esc(s) { return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function _teamSpan(s) {
+  for (const [name, fav] of Object.entries(favTeams)) {
+    if (s.startsWith(name)) {
+      return '<span class="fav-name" style="color:' + fav.color + '">' + fav.flag + ' ' + _esc(name) + '</span>' + _esc(s.slice(name.length));
+    }
+  }
+  return _esc(s);
+}
 function _fmtTime(utc) {
   return new Date(utc).toLocaleString(undefined, {weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit',timeZoneName:'short'});
 }
@@ -251,16 +261,16 @@ function _renderFixtureCard(f) {
   const grp = f.group ? 'Group ' + _esc(f.group) : '';
   if (f.completed) {
     return '<div class="fixture"><div class="grp">' + grp + ' — Final</div>'
-      + '<div class="teams">' + _esc(f.home) + ' ' + _esc(f.homeScore) + '–' + _esc(f.awayScore) + ' ' + _esc(f.away) + '</div>'
+      + '<div class="teams">' + _teamSpan(f.home) + ' ' + _esc(f.homeScore) + '–' + _esc(f.awayScore) + ' ' + _teamSpan(f.away) + '</div>'
       + '<div class="time">Full-time — ' + _esc(f.venue) + '</div></div>';
   }
   if (f.state === 'in') {
     return '<div class="fixture live"><div class="grp">' + grp + '</div>'
-      + '<div class="teams"><span class="live-dot"></span>' + _esc(f.home) + ' vs ' + _esc(f.away) + '</div>'
+      + '<div class="teams"><span class="live-dot"></span>' + _teamSpan(f.home) + ' vs ' + _teamSpan(f.away) + '</div>'
       + '<div class="time">Live — ' + _esc(f.venue) + '</div></div>';
   }
   return '<div class="fixture"><div class="grp">' + grp + '</div>'
-    + '<div class="teams">' + _esc(f.home) + ' vs ' + _esc(f.away) + '</div>'
+    + '<div class="teams">' + _teamSpan(f.home) + ' vs ' + _teamSpan(f.away) + '</div>'
     + '<div class="time">' + _fmtTime(f.utc) + ' — ' + _esc(f.venue) + '</div></div>';
 }
 (function renderFixturePanes() {
@@ -321,7 +331,7 @@ const thirdEl = document.getElementById("third-table");
 let thRows = thirds.map((t,i) => {
   const [name,grp,gp,pts,gd,gf] = t;
   const cls = i < 8 ? "in" : "bub";
-  return `<tr class="${cls}"><td><span class="rank-badge">${i+1}</span></td><td class="team">${name}</td><td>${grp}</td><td>${gp}</td><td>${pts}</td><td>${gd>0?'+':''}${gd}</td><td>${gf}</td></tr>`;
+  return `<tr class="${cls}"><td><span class="rank-badge">${i+1}</span></td><td class="team">${_teamSpan(name)}</td><td>${grp}</td><td>${gp}</td><td>${pts}</td><td>${gd>0?'+':''}${gd}</td><td>${gf}</td></tr>`;
 }).join("");
 thirdEl.innerHTML = `
   <tr><th>#</th><th style="text-align:left">Team</th><th>Group</th><th>GP</th><th>Pts</th><th>GD</th><th>GF</th></tr>

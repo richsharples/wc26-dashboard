@@ -264,6 +264,18 @@ def render_groups_js(groups_def, group_tables, fixtures):
     return "[\n  " + ",\n  ".join(parts) + "\n]"
 
 
+def render_favteams_js(favs):
+    entries = []
+    for fav in favs:
+        c1 = (fav["colors"] or FAV_DEFAULT_COLORS)[0]
+        entries.append(
+            json.dumps(fav["name"], ensure_ascii=False) +
+            ": { flag: " + json.dumps(fav["flag"], ensure_ascii=False) +
+            ", color: " + json.dumps(c1) + " }"
+        )
+    return "{ " + ", ".join(entries) + " }"
+
+
 def render_thirds_js(thirds):
     rows_js = ",\n  ".join(
         "[" + json.dumps(e[0], ensure_ascii=False) + "," + json.dumps(e[1], ensure_ascii=False) + "," + ",".join(str(x) for x in e[2:]) + "]"
@@ -331,12 +343,13 @@ def render_fixtures_data(fixtures, now):
     return json.dumps(items, ensure_ascii=False)
 
 
-def patch_html(html, groups_js, thirds_js, r32_js, fixtures_json, favorites_html, now):
+def patch_html(html, groups_js, thirds_js, r32_js, fixtures_json, favorites_html, favteams_js, now):
     html = re.sub(
         r'(<section class="fav-banner">)(.*?)(</section>)',
         lambda m: m.group(1) + "\n" + favorites_html + "\n" + m.group(3),
         html, count=1, flags=re.S,
     )
+    html = re.sub(r"const favTeams = \{.*?\};", lambda m: f"const favTeams = {favteams_js};", html, count=1, flags=re.S)
     html = re.sub(r"const groups = \[.*?\];", lambda m: f"const groups = {groups_js};", html, count=1, flags=re.S)
     html = re.sub(r"const thirds = \[.*?\];", lambda m: f"const thirds = {thirds_js};", html, count=1, flags=re.S)
     html = re.sub(r"const r32 = \[.*?\];", lambda m: f"const r32 = {r32_js};", html, count=1, flags=re.S)
@@ -374,10 +387,11 @@ def main():
     now = datetime.datetime.now(datetime.timezone.utc)
     fixtures_json = render_fixtures_data(fixtures, now)
     favorites_html = render_favorites_html(favs, group_tables, team_to_group)
+    favteams_js = render_favteams_js(favs)
 
     index_path = HERE / "index.html"
     html = index_path.read_text(encoding="utf-8")
-    new_html = patch_html(html, groups_js, thirds_js, r32_js, fixtures_json, favorites_html, now)
+    new_html = patch_html(html, groups_js, thirds_js, r32_js, fixtures_json, favorites_html, favteams_js, now)
     index_path.write_text(new_html, encoding="utf-8")
     print(f"Wrote {index_path} — {len(stats)} teams with results, {len(fixtures)} fixtures parsed.")
 
