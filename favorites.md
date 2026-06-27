@@ -1,13 +1,18 @@
 # Favorite Teams
 
-Edit this file to control the highlighted cards at the top of the dashboard.
+Visitors now pick their own teams in the dashboard's **"My Teams"** bar — those
+picks are stored per browser (localStorage), so each person sees their own set.
 
-- Add or remove a team by adding/removing a `## Team Name` section.
+This file no longer controls *which* teams show. It only provides optional
+**styling overrides** for specific teams: a custom flag, display name, card
+colour or note. Any team not listed here still works in the picker — it just
+uses its default flag (from `groups_data.json`) and the default card colour.
+
+- Add an override by adding a `## Team Name` section.
 - The team name **must match** the name used in `groups_data.json`
-  (e.g. `United States`, `England`, `Brazil`) so its group and bracket run can be found.
-- The card's **status** (alive / out / next match / result / champions) is filled
-  in automatically from the live bracket on each refresh — you only set the
-  fields below. During the group stage it falls back to the team's group position.
+  (e.g. `United States`, `England`, `Brazil`).
+- The card's **status** and **match history** are filled in automatically from
+  the live bracket on each refresh — you only set the fields below.
 
 Fields (all optional except the team heading):
 

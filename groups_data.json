@@ -13,6 +13,20 @@
     "K": ["Colombia", "Portugal", "Congo DR", "Uzbekistan"],
     "L": ["England", "Ghana", "Croatia", "Panama"]
   },
+  "flags": {
+    "Mexico": "🇲🇽", "South Africa": "🇿🇦", "South Korea": "🇰🇷", "Czechia": "🇨🇿",
+    "Switzerland": "🇨🇭", "Canada": "🇨🇦", "Bosnia-Herzegovina": "🇧🇦", "Qatar": "🇶🇦",
+    "Brazil": "🇧🇷", "Morocco": "🇲🇦", "Scotland": "🏴󠁧󠁢󠁳󠁣󠁴󠁿", "Haiti": "🇭🇹",
+    "United States": "🇺🇸", "Australia": "🇦🇺", "Paraguay": "🇵🇾", "Türkiye": "🇹🇷",
+    "Germany": "🇩🇪", "Ivory Coast": "🇨🇮", "Ecuador": "🇪🇨", "Curaçao": "🇨🇼",
+    "Netherlands": "🇳🇱", "Japan": "🇯🇵", "Sweden": "🇸🇪", "Tunisia": "🇹🇳",
+    "Egypt": "🇪🇬", "Iran": "🇮🇷", "Belgium": "🇧🇪", "New Zealand": "🇳🇿",
+    "Spain": "🇪🇸", "Uruguay": "🇺🇾", "Cape Verde": "🇨🇻", "Saudi Arabia": "🇸🇦",
+    "France": "🇫🇷", "Norway": "🇳🇴", "Senegal": "🇸🇳", "Iraq": "🇮🇶",
+    "Argentina": "🇦🇷", "Austria": "🇦🇹", "Algeria": "🇩🇿", "Jordan": "🇯🇴",
+    "Colombia": "🇨🇴", "Portugal": "🇵🇹", "Congo DR": "🇨🇩", "Uzbekistan": "🇺🇿",
+    "England": "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "Ghana": "🇬🇭", "Croatia": "🇭🇷", "Panama": "🇵🇦"
+  },
   "_bracket_note": "Single-elimination bracket for WC2026. Match ids and feeder topology follow the official FIFA schedule (Wikipedia: 2026 FIFA World Cup knockout stage). Teams/scores are filled at refresh time from ESPN by matching the known seed in each tie; third-place slots resolve automatically once ESPN seeds the Round of 32. Edit dates/cities/feeders here if the official schedule changes.",
   "bracket": [
     { "id": 73, "round": "R32", "date": "2026-06-28", "city": "Inglewood",      "a": {"seed": "2A"}, "b": {"seed": "2B"} },

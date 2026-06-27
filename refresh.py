@@ -517,25 +517,33 @@ def render_fav_games(name, fixtures):
     return '<ul class="fc-games">' + "".join(rows) + "</ul>"
 
 
-def render_favorites_html(favs, group_tables, team_to_group, nodes, fixtures):
-    cards = []
-    for fav in favs:
-        name = fav["name"]
-        c1, c2 = fav["colors"] or FAV_DEFAULT_COLORS
-        label = fav["label"] or name
+def render_team_cards(teams, group_tables, team_to_group, nodes, fixtures, flags, overrides):
+    """Precompute the favorite-card HTML for every team. The browser shows
+    whichever cards the visitor has picked (stored in localStorage), so all
+    the card logic lives here and nothing is reimplemented in JS.
+
+    `overrides` (from favorites.md, keyed by team name) can customise the
+    flag, label, colours and note for specific teams."""
+    cards = {}
+    for name in teams:
+        ov = overrides.get(name, {})
+        flag = ov.get("flag") or flags.get(name, "")
+        label = ov.get("label") or name
+        c1, c2 = ov.get("colors") or FAV_DEFAULT_COLORS
+        note = ov.get("note") or ""
         letter = team_to_group.get(name)
         grp_txt = f"Group {letter}" if letter else ""
 
-        st = fav_status(name, nodes) or fav_group_fallback(name, group_tables, team_to_group)
-        scls, stext, detail = st
+        scls, stext, detail = fav_status(name, nodes) or fav_group_fallback(name, group_tables, team_to_group)
         games_html = render_fav_games(name, fixtures)
-        note_html = f'<div class="note">{fav["note"]}</div>' if fav["note"] else ""
+        note_html = f'<div class="note">{note}</div>' if note else ""
 
-        cards.append(
+        cards[name] = (
             f'<details class="fav-card {scls}" data-fav="{name}" style="background:linear-gradient(135deg,{c1},{c2})">'
-            f'<summary class="fc-head"><span class="flag">{fav["flag"]}</span>'
+            f'<summary class="fc-head"><span class="flag">{flag}</span>'
             f'<span class="name">{label}</span>'
             f'<span class="grp">{grp_txt}</span>'
+            f'<button class="fc-remove" data-remove="{name}" title="Remove" aria-label="Remove">×</button>'
             f'<span class="chev">▶</span></summary>'
             f'<div class="fc-body">'
             f'<div class="fc-status"><span class="pill">{stext}</span></div>'
@@ -544,7 +552,7 @@ def render_favorites_html(favs, group_tables, team_to_group, nodes, fixtures):
             f'{note_html}'
             f'</div></details>'
         )
-    return "\n".join(cards)
+    return cards
 
 
 def render_fixtures_data(fixtures, now):
@@ -580,14 +588,10 @@ def render_fixtures_data(fixtures, now):
 
 
 def patch_html(html, repl):
-    html = re.sub(
-        r'(<section class="fav-banner">)(.*?)(</section>)',
-        lambda m: m.group(1) + "\n" + repl["favorites"] + "\n" + m.group(3),
-        html, count=1, flags=re.S,
-    )
     html = re.sub(r"const groups = \[.*?\];", lambda m: f"const groups = {repl['groups']};", html, count=1, flags=re.S)
     html = re.sub(r"const bracket = \[.*?\];", lambda m: f"const bracket = {repl['bracket']};", html, count=1, flags=re.S)
-    html = re.sub(r"const favNames = \[.*?\];", lambda m: f"const favNames = {repl['favnames']};", html, count=1, flags=re.S)
+    html = re.sub(r"const teamCards = \{.*?\};", lambda m: f"const teamCards = {repl['teamcards']};", html, count=1, flags=re.S)
+    html = re.sub(r"const allTeams = \[.*?\];", lambda m: f"const allTeams = {repl['allteams']};", html, count=1, flags=re.S)
     html = re.sub(r"const fixturesData = \[.*?\];", lambda m: f"const fixturesData = {repl['fixtures']};", html, count=1, flags=re.S)
     html = re.sub(
         r'<b id="updated-at"[^>]*>.*?</b>',
@@ -609,14 +613,17 @@ def main():
     nodes = build_bracket(bracket_def, group_tables, fixtures)
 
     favs = parse_favorites((HERE / "favorites.md").read_text(encoding="utf-8"))
-    fav_names = [f["name"] for f in favs]
+    overrides = {f["name"]: f for f in favs}
+    flags = data.get("flags", {})
+    all_teams = sorted(team_to_group)
+    team_cards = render_team_cards(all_teams, group_tables, team_to_group, nodes, fixtures, flags, overrides)
 
     now = datetime.datetime.now(datetime.timezone.utc)
     repl = {
-        "favorites": render_favorites_html(favs, group_tables, team_to_group, nodes, fixtures),
         "groups": render_groups_js(groups_def, group_tables, fixtures),
         "bracket": render_bracket_js(nodes),
-        "favnames": json.dumps(fav_names, ensure_ascii=False),
+        "teamcards": json.dumps(team_cards, ensure_ascii=False),
+        "allteams": json.dumps(all_teams, ensure_ascii=False),
         "fixtures": render_fixtures_data(fixtures, now),
         "timestamp": now.strftime("%b %-d, %Y, %H:%M UTC") + " — auto-refreshed",
         "updated_iso": now.strftime("%Y-%m-%dT%H:%M:%SZ"),
