@@ -481,7 +481,43 @@ def fav_group_fallback(name, group_tables, team_to_group):
     return ("group", f"Group {letter} · {ordinal(pos)}", f"{pts} pts · group stage in progress")
 
 
-def render_favorites_html(favs, group_tables, team_to_group, nodes):
+def render_fav_games(name, fixtures):
+    """A team's completed matches, oldest first, with result/score/opponent."""
+    played = [f for f in fixtures if f["completed"] and name in (f["home"], f["away"])]
+    epoch = datetime.datetime.min.replace(tzinfo=datetime.timezone.utc)
+    played.sort(key=lambda f: f.get("dt") or epoch)
+    if not played:
+        return '<div class="fc-games-empty">No games played yet.</div>'
+    rows = []
+    for f in played:
+        is_home = f["home"] == name
+        ts = f["home_score"] if is_home else f["away_score"]
+        os_ = f["away_score"] if is_home else f["home_score"]
+        opp = f["away"] if is_home else f["home"]
+        if f["winner"]:
+            res = "W" if (f["winner"] == "home") == is_home else "L"
+        elif ts is not None and os_ is not None:
+            res = "W" if ts > os_ else ("L" if ts < os_ else "D")
+        else:
+            res = "D"
+        tp = f["home_pen"] if is_home else f["away_pen"]
+        op = f["away_pen"] if is_home else f["home_pen"]
+        pen = f" (p {tp}–{op})" if tp is not None and op is not None else ""
+        if f["round"] == "group":
+            tag = f"Grp {f['group']}" if f["group"] else "Grp"
+        else:
+            tag = ROUND_SHORT.get(f["round"], f["round"])
+        score = f"{ts}–{os_}{pen}" if ts is not None and os_ is not None else "—"
+        rows.append(
+            f'<li class="g-{res.lower()}"><span class="g-res">{res}</span>'
+            f'<span class="g-score">{score}</span>'
+            f'<span class="g-opp">v {opp}</span>'
+            f'<span class="g-tag">{tag}</span></li>'
+        )
+    return '<ul class="fc-games">' + "".join(rows) + "</ul>"
+
+
+def render_favorites_html(favs, group_tables, team_to_group, nodes, fixtures):
     cards = []
     for fav in favs:
         name = fav["name"]
@@ -492,15 +528,21 @@ def render_favorites_html(favs, group_tables, team_to_group, nodes):
 
         st = fav_status(name, nodes) or fav_group_fallback(name, group_tables, team_to_group)
         scls, stext, detail = st
+        games_html = render_fav_games(name, fixtures)
+        note_html = f'<div class="note">{fav["note"]}</div>' if fav["note"] else ""
 
         cards.append(
-            f'<div class="fav-card {scls}" style="background:linear-gradient(135deg,{c1},{c2})">'
-            f'<div class="fc-head"><span class="flag">{fav["flag"]}</span>'
+            f'<details class="fav-card {scls}" style="background:linear-gradient(135deg,{c1},{c2})">'
+            f'<summary class="fc-head"><span class="flag">{fav["flag"]}</span>'
             f'<span class="name">{label}</span>'
-            f'<span class="grp">{grp_txt}</span></div>'
+            f'<span class="grp">{grp_txt}</span>'
+            f'<span class="chev">▶</span></summary>'
+            f'<div class="fc-body">'
             f'<div class="fc-status"><span class="pill">{stext}</span></div>'
             f'<div class="fc-detail">{detail}</div>'
-            f'<div class="note">{fav["note"]}</div></div>'
+            f'{games_html}'
+            f'{note_html}'
+            f'</div></details>'
         )
     return "\n".join(cards)
 
@@ -571,7 +613,7 @@ def main():
 
     now = datetime.datetime.now(datetime.timezone.utc)
     repl = {
-        "favorites": render_favorites_html(favs, group_tables, team_to_group, nodes),
+        "favorites": render_favorites_html(favs, group_tables, team_to_group, nodes, fixtures),
         "groups": render_groups_js(groups_def, group_tables, fixtures),
         "bracket": render_bracket_js(nodes),
         "favnames": json.dumps(fav_names, ensure_ascii=False),

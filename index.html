@@ -44,16 +44,23 @@
   }
 
   /* ---- Favorites ---- */
-  .fav-banner { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 22px; }
+  .fav-banner { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 22px; align-items: flex-start; }
   .fav-card {
     flex: 1; min-width: 260px; background: linear-gradient(135deg,#0b2545,#13315c);
-    color: #fff; border-radius: 12px; padding: 15px 18px; position: relative; overflow: hidden;
+    color: #fff; border-radius: 12px; overflow: hidden;
   }
-  .fav-card .fc-head { display: flex; align-items: center; gap: 8px; }
+  .fav-card > summary {
+    list-style: none; cursor: pointer; user-select: none;
+    display: flex; align-items: center; gap: 8px; padding: 14px 16px;
+  }
+  .fav-card > summary::-webkit-details-marker { display: none; }
   .fav-card .flag { font-size: 22px; }
   .fav-card .name { font-size: 17px; font-weight: 700; }
   .fav-card .grp { margin-left: auto; font-size: 11px; opacity: .75; text-transform: uppercase; letter-spacing: .03em; }
-  .fav-card .fc-status { margin-top: 12px; }
+  .fav-card .chev { font-size: 11px; opacity: .7; margin-left: 8px; transition: transform .15s ease; }
+  .fav-card[open] .chev { transform: rotate(90deg); }
+  .fav-card .fc-body { padding: 0 16px 14px; }
+  .fav-card .fc-status { margin-top: 2px; }
   .fav-card .pill {
     display: inline-block; font-size: 13px; font-weight: 700; padding: 3px 10px;
     border-radius: 999px; background: rgba(255,255,255,.18);
@@ -63,8 +70,18 @@
   .fav-card.out   { filter: saturate(.5); }
   .fav-card.live  .pill { background: rgba(210,30,50,.45); }
   .fav-card.champ .pill { background: rgba(212,175,55,.45); }
-  .fav-card .fc-detail { margin-top: 8px; font-size: 13px; opacity: .95; min-height: 16px; }
-  .fav-card .note { margin-top: 8px; font-size: 12px; opacity: .8; }
+  .fav-card .fc-detail { margin-top: 8px; font-size: 13px; opacity: .95; }
+  .fav-card .fc-games { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+  .fav-card .fc-games li { display: flex; align-items: center; gap: 8px; font-size: 12.5px; background: rgba(255,255,255,.10); border-radius: 6px; padding: 4px 8px; }
+  .fav-card .g-res { font-weight: 800; width: 13px; text-align: center; }
+  .fav-card li.g-w .g-res { color: #74e0a0; }
+  .fav-card li.g-l .g-res { color: #ff9ca6; }
+  .fav-card li.g-d .g-res { color: #ffe08a; }
+  .fav-card .g-score { font-weight: 700; min-width: 52px; }
+  .fav-card .g-opp { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .fav-card .g-tag { font-size: 10px; opacity: .7; text-transform: uppercase; letter-spacing: .03em; }
+  .fav-card .fc-games-empty { margin-top: 10px; font-size: 12px; opacity: .8; }
+  .fav-card .note { margin-top: 10px; font-size: 12px; opacity: .8; }
 
   /* ---- Bracket ---- */
   .bracket-scroll { overflow-x: auto; padding-bottom: 6px; }
@@ -158,12 +175,12 @@
     <h1>🏆 FIFA World Cup 2026 — Dashboard</h1>
     <div class="sub">Knockout phase · favorites tracker · live bracket</div>
   </div>
-  <div class="updated">Last refreshed: <b id="updated-at" data-utc="2026-06-27T17:37:58Z">Jun 27, 2026, 17:37 UTC — auto-refreshed</b></div>
+  <div class="updated">Last refreshed: <b id="updated-at" data-utc="2026-06-27T17:53:17Z">Jun 27, 2026, 17:53 UTC — auto-refreshed</b></div>
 </header>
 
 <section class="fav-banner">
-<div class="fav-card alive" style="background:linear-gradient(135deg,#1d2d50,#3c3b6e)"><div class="fc-head"><span class="flag">🇺🇸</span><span class="name">USA</span><span class="grp">Group D</span></div><div class="fc-status"><span class="pill">Round of 32</span></div><div class="fc-detail">Next: v Bosnia-Herzegovina · Thu Jul 2 · Santa Clara, California</div><div class="note">Through to the knockouts — chasing a deep run.</div></div>
-<div class="fav-card group" style="background:linear-gradient(135deg,#7a0c0c,#a11d1d)"><div class="fc-head"><span class="flag">🏴󠁧󠁢󠁥󠁮󠁧󠁿</span><span class="name">England</span><span class="grp">Group L</span></div><div class="fc-status"><span class="pill">Group L · 1st</span></div><div class="fc-detail">4 pts · group stage in progress</div><div class="note">Into the knockout rounds — every game is now win-or-go-home.</div></div>
+<details class="fav-card alive" style="background:linear-gradient(135deg,#1d2d50,#3c3b6e)"><summary class="fc-head"><span class="flag">🇺🇸</span><span class="name">USA</span><span class="grp">Group D</span><span class="chev">▶</span></summary><div class="fc-body"><div class="fc-status"><span class="pill">Round of 32</span></div><div class="fc-detail">Next: v Bosnia-Herzegovina · Thu Jul 2 · Santa Clara, California</div><ul class="fc-games"><li class="g-w"><span class="g-res">W</span><span class="g-score">4–1</span><span class="g-opp">v Paraguay</span><span class="g-tag">Grp D</span></li><li class="g-w"><span class="g-res">W</span><span class="g-score">2–0</span><span class="g-opp">v Australia</span><span class="g-tag">Grp D</span></li><li class="g-l"><span class="g-res">L</span><span class="g-score">2–3</span><span class="g-opp">v Türkiye</span><span class="g-tag">Grp D</span></li></ul><div class="note">Through to the knockouts — chasing a deep run.</div></div></details>
+<details class="fav-card group" style="background:linear-gradient(135deg,#7a0c0c,#a11d1d)"><summary class="fc-head"><span class="flag">🏴󠁧󠁢󠁥󠁮󠁧󠁿</span><span class="name">England</span><span class="grp">Group L</span><span class="chev">▶</span></summary><div class="fc-body"><div class="fc-status"><span class="pill">Group L · 1st</span></div><div class="fc-detail">4 pts · group stage in progress</div><ul class="fc-games"><li class="g-w"><span class="g-res">W</span><span class="g-score">4–2</span><span class="g-opp">v Croatia</span><span class="g-tag">Grp L</span></li><li class="g-d"><span class="g-res">D</span><span class="g-score">0–0</span><span class="g-opp">v Ghana</span><span class="g-tag">Grp L</span></li></ul><div class="note">Into the knockout rounds — every game is now win-or-go-home.</div></div></details>
 </section>
 
 <section>
