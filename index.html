@@ -119,6 +119,8 @@
   }
   /* give the dense Round of 32 column more breathing room between ties */
   .r-R32 .tie { min-height: 72px; }
+  /* anchor the popover/info to the box, not the tall flex slot */
+  .tie-anchor { position: relative; width: 100%; }
   .tie-box {
     background: #fff; border: 1px solid #e2e5ea; border-radius: 8px; overflow: hidden;
     font-size: 12px;
@@ -368,9 +370,11 @@ function tieHTML(n) {
   if (n.tvUk) tv.push(`<span class="tm-tv"><b>UK</b> ${n.tvUk}</span>`);
   const tvHtml = tv.length ? `<span class="tm-tv-wrap">📺 ${tv.join("")}</span>` : "";
   return `<div class="${cls.join(" ")}">
-    <span class="tie-info">ⓘ</span>
-    <div class="tie-box">${sideHTML(n,"a")}${sideHTML(n,"b")}</div>
-    <div class="tie-meta">${dot}${when} · ${n.city}${tvHtml}</div>
+    <div class="tie-anchor">
+      <span class="tie-info">ⓘ</span>
+      <div class="tie-box">${sideHTML(n,"a")}${sideHTML(n,"b")}</div>
+      <div class="tie-meta">${dot}${when} · ${n.city}${tvHtml}</div>
+    </div>
   </div>`;
 }
 
