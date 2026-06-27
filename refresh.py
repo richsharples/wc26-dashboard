@@ -505,48 +505,36 @@ def render_favorites_html(favs, group_tables, team_to_group, nodes):
     return "\n".join(cards)
 
 
-def render_fixtures_html(fixtures, now):
-    window_end = now + datetime.timedelta(hours=60)
-    upcoming = []
+def render_fixtures_data(fixtures, now):
+    """Emit a JSON array of fixtures (in-progress + recent + next ~5 days).
+    The browser groups these into Today / Tomorrow / Upcoming panes using the
+    viewer's local date, so grouping must happen client-side."""
+    window_end = now + datetime.timedelta(days=5)
+    chosen = []
     for f in fixtures:
         if not f.get("dt"):
             continue
         dt = f["dt"]
         if f["state"] == "in" or now - datetime.timedelta(hours=4) <= dt <= window_end:
-            upcoming.append((dt, f))
-    upcoming.sort(key=lambda x: x[0])
+            chosen.append((dt, f))
+    chosen.sort(key=lambda x: x[0])
 
-    blocks = []
-    for dt, f in upcoming[:24]:
+    items = []
+    for dt, f in chosen[:40]:
         if f["round"] == "group":
             tag = f"Group {f['group']}" if f["group"] else "Group stage"
         else:
             tag = ROUND_LABELS.get(f["round"], f["round"])
-        loc = f["city"] or f["venue"]
-        if f["completed"]:
-            pens = ""
-            if f["home_pen"] is not None and f["away_pen"] is not None:
-                pens = f" (p {f['home_pen']}–{f['away_pen']})"
-            blocks.append(
-                f'<div class="fixture"><div class="grp">{tag} — Final</div>'
-                f'<div class="teams">{f["home"]} {f["home_score"]}–{f["away_score"]}{pens} {f["away"]}</div>'
-                f'<div class="time">Full-time — {loc}</div></div>'
-            )
-        elif f["state"] == "in":
-            blocks.append(
-                f'<div class="fixture live"><div class="grp">{tag}</div>'
-                f'<div class="teams"><span class="live-dot"></span>{f["home"]} vs {f["away"]}</div>'
-                f'<div class="time">Live — {loc}</div></div>'
-            )
-        else:
-            iso = dt.astimezone(datetime.timezone.utc).isoformat()
-            fallback = dt.strftime("%a %b %-d, %-I:%M%p UTC")
-            blocks.append(
-                f'<div class="fixture"><div class="grp">{tag}</div>'
-                f'<div class="teams">{f["home"]} vs {f["away"]}</div>'
-                f'<div class="time"><span class="lt" data-utc="{iso}">{fallback}</span> — {loc}</div></div>'
-            )
-    return "\n".join(blocks)
+        items.append({
+            "utc": dt.astimezone(datetime.timezone.utc).isoformat(),
+            "tag": tag,
+            "home": f["home"], "away": f["away"],
+            "homeScore": f["home_score"], "awayScore": f["away_score"],
+            "homePen": f["home_pen"], "awayPen": f["away_pen"],
+            "completed": f["completed"], "state": f["state"] or "",
+            "venue": f["city"] or f["venue"],
+        })
+    return json.dumps(items, ensure_ascii=False)
 
 
 def patch_html(html, repl):
@@ -558,11 +546,7 @@ def patch_html(html, repl):
     html = re.sub(r"const groups = \[.*?\];", lambda m: f"const groups = {repl['groups']};", html, count=1, flags=re.S)
     html = re.sub(r"const bracket = \[.*?\];", lambda m: f"const bracket = {repl['bracket']};", html, count=1, flags=re.S)
     html = re.sub(r"const favNames = \[.*?\];", lambda m: f"const favNames = {repl['favnames']};", html, count=1, flags=re.S)
-    html = re.sub(
-        r'(<div class="fixtures-grid" id="fixtures">)(.*?)(\s*</div>\s*<div class="pending-note">)',
-        lambda m: m.group(1) + "\n" + repl["fixtures"] + m.group(3),
-        html, count=1, flags=re.S,
-    )
+    html = re.sub(r"const fixturesData = \[.*?\];", lambda m: f"const fixturesData = {repl['fixtures']};", html, count=1, flags=re.S)
     html = re.sub(
         r'<b id="updated-at"[^>]*>.*?</b>',
         f'<b id="updated-at" data-utc="{repl["updated_iso"]}">{repl["timestamp"]}</b>',
@@ -591,7 +575,7 @@ def main():
         "groups": render_groups_js(groups_def, group_tables, fixtures),
         "bracket": render_bracket_js(nodes),
         "favnames": json.dumps(fav_names, ensure_ascii=False),
-        "fixtures": render_fixtures_html(fixtures, now),
+        "fixtures": render_fixtures_data(fixtures, now),
         "timestamp": now.strftime("%b %-d, %Y, %H:%M UTC") + " — auto-refreshed",
         "updated_iso": now.strftime("%Y-%m-%dT%H:%M:%SZ"),
     }

@@ -118,6 +118,9 @@
   .fixture .teams { font-weight: 600; margin: 4px 0; }
   .fixture .time { color: #5a6172; font-size: 12px; }
   .fixture.live { border-color: #d23; box-shadow: 0 0 0 2px rgba(210,30,50,.08); }
+  .fixture-pane { margin-bottom: 16px; }
+  .pane-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: #5a6172; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid #eef0f3; }
+  #no-fixtures { font-size: 13px; color: #5a6172; padding: 6px 2px; }
 
   /* ---- Groups (archive) ---- */
   .groups-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(255px,1fr)); gap: 12px; }
@@ -155,7 +158,7 @@
     <h1>🏆 FIFA World Cup 2026 — Dashboard</h1>
     <div class="sub">Knockout phase · favorites tracker · live bracket</div>
   </div>
-  <div class="updated">Last refreshed: <b id="updated-at" data-utc="2026-06-27T17:32:03Z">Jun 27, 2026, 17:32 UTC — auto-refreshed</b></div>
+  <div class="updated">Last refreshed: <b id="updated-at" data-utc="2026-06-27T17:37:58Z">Jun 27, 2026, 17:37 UTC — auto-refreshed</b></div>
 </header>
 
 <section class="fav-banner">
@@ -172,17 +175,20 @@
 
 <details class="panel" open>
   <summary>Today &amp; Upcoming Fixtures <span class="chev">▶</span></summary>
-  <div class="fixtures-grid" id="fixtures">
-<div class="fixture"><div class="grp">Group L</div><div class="teams">Croatia vs Ghana</div><div class="time"><span class="lt" data-utc="2026-06-27T21:00:00+00:00">Sat Jun 27, 9:00PM UTC</span> — Philadelphia, Pennsylvania</div></div>
-<div class="fixture"><div class="grp">Group L</div><div class="teams">Panama vs England</div><div class="time"><span class="lt" data-utc="2026-06-27T21:00:00+00:00">Sat Jun 27, 9:00PM UTC</span> — East Rutherford, New Jersey</div></div>
-<div class="fixture"><div class="grp">Group K</div><div class="teams">Colombia vs Portugal</div><div class="time"><span class="lt" data-utc="2026-06-27T23:30:00+00:00">Sat Jun 27, 11:30PM UTC</span> — Miami Gardens, Florida</div></div>
-<div class="fixture"><div class="grp">Group K</div><div class="teams">Congo DR vs Uzbekistan</div><div class="time"><span class="lt" data-utc="2026-06-27T23:30:00+00:00">Sat Jun 27, 11:30PM UTC</span> — Atlanta, Georgia</div></div>
-<div class="fixture"><div class="grp">Round of 32</div><div class="teams">Algeria vs Austria</div><div class="time"><span class="lt" data-utc="2026-06-28T02:00:00+00:00">Sun Jun 28, 2:00AM UTC</span> — Kansas City, Missouri</div></div>
-<div class="fixture"><div class="grp">Round of 32</div><div class="teams">Jordan vs Argentina</div><div class="time"><span class="lt" data-utc="2026-06-28T02:00:00+00:00">Sun Jun 28, 2:00AM UTC</span> — Arlington, Texas</div></div>
-<div class="fixture"><div class="grp">Round of 32</div><div class="teams">South Africa vs Canada</div><div class="time"><span class="lt" data-utc="2026-06-28T19:00:00+00:00">Sun Jun 28, 7:00PM UTC</span> — Inglewood, California</div></div>
-<div class="fixture"><div class="grp">Round of 32</div><div class="teams">Brazil vs Japan</div><div class="time"><span class="lt" data-utc="2026-06-29T17:00:00+00:00">Mon Jun 29, 5:00PM UTC</span> — Houston, Texas</div></div>
-<div class="fixture"><div class="grp">Round of 32</div><div class="teams">Germany vs Paraguay</div><div class="time"><span class="lt" data-utc="2026-06-29T20:30:00+00:00">Mon Jun 29, 8:30PM UTC</span> — Foxborough, Massachusetts</div></div>
-<div class="fixture"><div class="grp">Round of 32</div><div class="teams">Netherlands vs Morocco</div><div class="time"><span class="lt" data-utc="2026-06-30T01:00:00+00:00">Tue Jun 30, 1:00AM UTC</span> — Guadalupe</div></div>
+  <div id="fixtures-panes">
+    <div class="fixture-pane" id="pane-today">
+      <div class="pane-title">Today</div>
+      <div class="fixtures-grid" id="fixtures-today"></div>
+    </div>
+    <div class="fixture-pane" id="pane-tomorrow">
+      <div class="pane-title">Tomorrow</div>
+      <div class="fixtures-grid" id="fixtures-tomorrow"></div>
+    </div>
+    <div class="fixture-pane" id="pane-upcoming">
+      <div class="pane-title">Upcoming</div>
+      <div class="fixtures-grid" id="fixtures-upcoming"></div>
+    </div>
+    <div id="no-fixtures" style="display:none">No upcoming fixtures.</div>
   </div>
   <div class="pending-note">Round of 32 runs Jun 28 – Jul 3 · Round of 16 Jul 4–7 · Quarter-finals Jul 9–11 · Semi-finals Jul 14–15 · Final Jul 19.</div>
 </details>
@@ -259,6 +265,8 @@ const bracket = [
 
 const favNames = ["United States", "England"];
 
+const fixturesData = [{"utc": "2026-06-27T21:00:00+00:00", "tag": "Group L", "home": "Croatia", "away": "Ghana", "homeScore": 0, "awayScore": 0, "homePen": null, "awayPen": null, "completed": false, "state": "pre", "venue": "Philadelphia, Pennsylvania"}, {"utc": "2026-06-27T21:00:00+00:00", "tag": "Group L", "home": "Panama", "away": "England", "homeScore": 0, "awayScore": 0, "homePen": null, "awayPen": null, "completed": false, "state": "pre", "venue": "East Rutherford, New Jersey"}, {"utc": "2026-06-27T23:30:00+00:00", "tag": "Group K", "home": "Colombia", "away": "Portugal", "homeScore": 0, "awayScore": 0, "homePen": null, "awayPen": null, "completed": false, "state": "pre", "venue": "Miami Gardens, Florida"}, {"utc": "2026-06-27T23:30:00+00:00", "tag": "Group K", "home": "Congo DR", "away": "Uzbekistan", "homeScore": 0, "awayScore": 0, "homePen": null, "awayPen": null, "completed": false, "state": "pre", "venue": "Atlanta, Georgia"}, {"utc": "2026-06-28T02:00:00+00:00", "tag": "Round of 32", "home": "Algeria", "away": "Austria", "homeScore": 0, "awayScore": 0, "homePen": null, "awayPen": null, "completed": false, "state": "pre", "venue": "Kansas City, Missouri"}, {"utc": "2026-06-28T02:00:00+00:00", "tag": "Round of 32", "home": "Jordan", "away": "Argentina", "homeScore": 0, "awayScore": 0, "homePen": null, "awayPen": null, "completed": false, "state": "pre", "venue": "Arlington, Texas"}, {"utc": "2026-06-28T19:00:00+00:00", "tag": "Round of 32", "home": "South Africa", "away": "Canada", "homeScore": 0, "awayScore": 0, "homePen": null, "awayPen": null, "completed": false, "state": "pre", "venue": "Inglewood, California"}, {"utc": "2026-06-29T17:00:00+00:00", "tag": "Round of 32", "home": "Brazil", "away": "Japan", "homeScore": 0, "awayScore": 0, "homePen": null, "awayPen": null, "completed": false, "state": "pre", "venue": "Houston, Texas"}, {"utc": "2026-06-29T20:30:00+00:00", "tag": "Round of 32", "home": "Germany", "away": "Paraguay", "homeScore": 0, "awayScore": 0, "homePen": null, "awayPen": null, "completed": false, "state": "pre", "venue": "Foxborough, Massachusetts"}, {"utc": "2026-06-30T01:00:00+00:00", "tag": "Round of 32", "home": "Netherlands", "away": "Morocco", "homeScore": 0, "awayScore": 0, "homePen": null, "awayPen": null, "completed": false, "state": "pre", "venue": "Guadalupe"}, {"utc": "2026-06-30T17:00:00+00:00", "tag": "Round of 32", "home": "Ivory Coast", "away": "Norway", "homeScore": 0, "awayScore": 0, "homePen": null, "awayPen": null, "completed": false, "state": "pre", "venue": "Arlington, Texas"}, {"utc": "2026-06-30T21:00:00+00:00", "tag": "Round of 32", "home": "France", "away": "Sweden", "homeScore": 0, "awayScore": 0, "homePen": null, "awayPen": null, "completed": false, "state": "pre", "venue": "East Rutherford, New Jersey"}, {"utc": "2026-07-01T01:00:00+00:00", "tag": "Round of 32", "home": "Mexico", "away": "Third Place Group C/E/F/H/I", "homeScore": 0, "awayScore": 0, "homePen": null, "awayPen": null, "completed": false, "state": "pre", "venue": "Mexico City"}, {"utc": "2026-07-01T16:00:00+00:00", "tag": "Round of 32", "home": "Group L Winner", "away": "Third Place Group E/H/I/J/K", "homeScore": 0, "awayScore": 0, "homePen": null, "awayPen": null, "completed": false, "state": "pre", "venue": "Atlanta, Georgia"}, {"utc": "2026-07-01T20:00:00+00:00", "tag": "Round of 32", "home": "Belgium", "away": "Third Place Group A/E/H/I/J", "homeScore": 0, "awayScore": 0, "homePen": null, "awayPen": null, "completed": false, "state": "pre", "venue": "Seattle, Washington"}, {"utc": "2026-07-02T00:00:00+00:00", "tag": "Round of 32", "home": "United States", "away": "Bosnia-Herzegovina", "homeScore": 0, "awayScore": 0, "homePen": null, "awayPen": null, "completed": false, "state": "pre", "venue": "Santa Clara, California"}];
+
 // ---- Local-timezone formatting ----
 function fmtLocalDate(iso) {
   return new Date(iso).toLocaleDateString(undefined, {weekday:'short', month:'short', day:'numeric'});
@@ -329,10 +337,55 @@ groups.forEach(g => {
   groupsEl.appendChild(card);
 });
 
-// ---- Rewrite UTC timestamps into the viewer's local timezone ----
-document.querySelectorAll(".lt[data-utc]").forEach(el => {
-  el.textContent = fmtLocalDateTime(el.dataset.utc);
-});
+// ---- Fixtures: group into Today / Tomorrow / Upcoming (viewer's local date) ----
+function _esc(s) { return String(s == null ? "" : s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function _renderFixtureCard(f) {
+  const tag = _esc(f.tag);
+  if (f.completed) {
+    let pens = "";
+    if (f.homePen != null && f.awayPen != null) pens = ` (p ${f.homePen}–${f.awayPen})`;
+    return `<div class="fixture"><div class="grp">${tag} — Final</div>`
+      + `<div class="teams">${_esc(f.home)} ${_esc(f.homeScore)}–${_esc(f.awayScore)}${pens} ${_esc(f.away)}</div>`
+      + `<div class="time">Full-time — ${_esc(f.venue)}</div></div>`;
+  }
+  if (f.state === "in") {
+    return `<div class="fixture live"><div class="grp">${tag}</div>`
+      + `<div class="teams"><span class="live-dot"></span>${_esc(f.home)} vs ${_esc(f.away)}</div>`
+      + `<div class="time">Live — ${_esc(f.venue)}</div></div>`;
+  }
+  return `<div class="fixture"><div class="grp">${tag}</div>`
+    + `<div class="teams">${_esc(f.home)} vs ${_esc(f.away)}</div>`
+    + `<div class="time">${fmtLocalDateTime(f.utc)} — ${_esc(f.venue)}</div></div>`;
+}
+(function renderFixturePanes() {
+  const now = new Date();
+  const dateKey = d => d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+  const todayStr = dateKey(now);
+  const tmw = new Date(now); tmw.setDate(tmw.getDate() + 1);
+  const tomorrowStr = dateKey(tmw);
+  const panes = { today: [], tomorrow: [], upcoming: [] };
+  fixturesData.forEach(f => {
+    if (f.state === "in") { panes.today.push(f); return; }
+    const d = dateKey(new Date(f.utc));
+    if (d <= todayStr) panes.today.push(f);
+    else if (d === tomorrowStr) panes.tomorrow.push(f);
+    else panes.upcoming.push(f);
+  });
+  const fmtDay = d => d.toLocaleDateString(undefined, {weekday:"short", month:"short", day:"numeric"});
+  document.querySelector("#pane-today .pane-title").textContent = "Today — " + fmtDay(now);
+  document.querySelector("#pane-tomorrow .pane-title").textContent = "Tomorrow — " + fmtDay(tmw);
+  ["today","tomorrow","upcoming"].forEach(pane => {
+    const grid = document.getElementById("fixtures-" + pane);
+    const paneEl = document.getElementById("pane-" + pane);
+    if (!grid || !paneEl) return;
+    if (panes[pane].length === 0) { paneEl.style.display = "none"; return; }
+    grid.innerHTML = panes[pane].map(_renderFixtureCard).join("");
+  });
+  const anyVisible = ["today","tomorrow","upcoming"].some(p => document.getElementById("pane-"+p).style.display !== "none");
+  document.getElementById("no-fixtures").style.display = anyVisible ? "none" : "";
+})();
+
+// ---- Localize the "last refreshed" stamp ----
 const updatedEl = document.getElementById("updated-at");
 if (updatedEl && updatedEl.dataset.utc) {
   updatedEl.textContent = fmtLocalDateTime(updatedEl.dataset.utc) + " — auto-refreshed";
