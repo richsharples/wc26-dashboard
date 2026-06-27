@@ -181,6 +181,13 @@ def parse_events(events, team_to_group):
             except (TypeError, ValueError):
                 return None
 
+        tv_us = []
+        for b in comp.get("broadcasts") or []:
+            for n in b.get("names") or []:
+                n = "Telemundo" if n == "Tele" else n
+                if n not in tv_us:
+                    tv_us.append(n)
+
         fixtures.append({
             "round": rnd, "group": group,
             "home": home_name, "away": away_name,
@@ -188,6 +195,7 @@ def parse_events(events, team_to_group):
             "home_pen": pen(home), "away_pen": pen(away),
             "completed": completed, "state": state, "winner": winner,
             "venue": venue, "city": city, "date": date_iso, "dt": dt,
+            "tv_us": tv_us,
         })
 
         if rnd != "group" or not completed or hs is None or asc is None:
@@ -326,9 +334,10 @@ def build_bracket(bracket_def, group_tables, fixtures):
         fx = find_knockout_fixture(rnd, expected, fixtures, used)
 
         node = {"id": nid, "round": rnd, "date": d["date"], "city": d["city"],
-                "state": "pre", "winner": ""}
+                "state": "pre", "winner": "", "tv_us": [], "tv_uk": d.get("tv_uk", "")}
 
         if fx:
+            node["tv_us"] = fx.get("tv_us") or []
             ht, at = fx["home"], fx["away"]
             # Orient ESPN home/away onto the tie's a/b slots.
             if a_team and a_team == at:
@@ -384,6 +393,7 @@ def render_bracket_js(nodes):
         parts.append(json.dumps({
             "id": n["id"], "round": n["round"], "utc": utc, "day": day, "city": n["city"],
             "state": n["state"], "winner": n["winner"],
+            "tvUs": ", ".join(n.get("tv_us") or []), "tvUk": n.get("tv_uk", ""),
             "a": {"name": a["name"], "score": a["score"], "pen": a.get("pen"), "tbd": a.get("tbd", False)},
             "b": {"name": b["name"], "score": b["score"], "pen": b.get("pen"), "tbd": b.get("tbd", False)},
         }, ensure_ascii=False))
