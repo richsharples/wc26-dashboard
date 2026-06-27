@@ -175,12 +175,12 @@
     <h1>🏆 FIFA World Cup 2026 — Dashboard</h1>
     <div class="sub">Knockout phase · favorites tracker · live bracket</div>
   </div>
-  <div class="updated">Last refreshed: <b id="updated-at" data-utc="2026-06-27T17:53:17Z">Jun 27, 2026, 17:53 UTC — auto-refreshed</b></div>
+  <div class="updated">Last refreshed: <b id="updated-at" data-utc="2026-06-27T17:58:37Z">Jun 27, 2026, 17:58 UTC — auto-refreshed</b></div>
 </header>
 
 <section class="fav-banner">
-<details class="fav-card alive" style="background:linear-gradient(135deg,#1d2d50,#3c3b6e)"><summary class="fc-head"><span class="flag">🇺🇸</span><span class="name">USA</span><span class="grp">Group D</span><span class="chev">▶</span></summary><div class="fc-body"><div class="fc-status"><span class="pill">Round of 32</span></div><div class="fc-detail">Next: v Bosnia-Herzegovina · Thu Jul 2 · Santa Clara, California</div><ul class="fc-games"><li class="g-w"><span class="g-res">W</span><span class="g-score">4–1</span><span class="g-opp">v Paraguay</span><span class="g-tag">Grp D</span></li><li class="g-w"><span class="g-res">W</span><span class="g-score">2–0</span><span class="g-opp">v Australia</span><span class="g-tag">Grp D</span></li><li class="g-l"><span class="g-res">L</span><span class="g-score">2–3</span><span class="g-opp">v Türkiye</span><span class="g-tag">Grp D</span></li></ul><div class="note">Through to the knockouts — chasing a deep run.</div></div></details>
-<details class="fav-card group" style="background:linear-gradient(135deg,#7a0c0c,#a11d1d)"><summary class="fc-head"><span class="flag">🏴󠁧󠁢󠁥󠁮󠁧󠁿</span><span class="name">England</span><span class="grp">Group L</span><span class="chev">▶</span></summary><div class="fc-body"><div class="fc-status"><span class="pill">Group L · 1st</span></div><div class="fc-detail">4 pts · group stage in progress</div><ul class="fc-games"><li class="g-w"><span class="g-res">W</span><span class="g-score">4–2</span><span class="g-opp">v Croatia</span><span class="g-tag">Grp L</span></li><li class="g-d"><span class="g-res">D</span><span class="g-score">0–0</span><span class="g-opp">v Ghana</span><span class="g-tag">Grp L</span></li></ul><div class="note">Into the knockout rounds — every game is now win-or-go-home.</div></div></details>
+<details class="fav-card alive" data-fav="United States" style="background:linear-gradient(135deg,#1d2d50,#3c3b6e)"><summary class="fc-head"><span class="flag">🇺🇸</span><span class="name">USA</span><span class="grp">Group D</span><span class="chev">▶</span></summary><div class="fc-body"><div class="fc-status"><span class="pill">Round of 32</span></div><div class="fc-detail">Next: v Bosnia-Herzegovina · Thu Jul 2 · Santa Clara, California</div><ul class="fc-games"><li class="g-w"><span class="g-res">W</span><span class="g-score">4–1</span><span class="g-opp">v Paraguay</span><span class="g-tag">Grp D</span></li><li class="g-w"><span class="g-res">W</span><span class="g-score">2–0</span><span class="g-opp">v Australia</span><span class="g-tag">Grp D</span></li><li class="g-l"><span class="g-res">L</span><span class="g-score">2–3</span><span class="g-opp">v Türkiye</span><span class="g-tag">Grp D</span></li></ul><div class="note">Through to the knockouts — chasing a deep run.</div></div></details>
+<details class="fav-card group" data-fav="England" style="background:linear-gradient(135deg,#7a0c0c,#a11d1d)"><summary class="fc-head"><span class="flag">🏴󠁧󠁢󠁥󠁮󠁧󠁿</span><span class="name">England</span><span class="grp">Group L</span><span class="chev">▶</span></summary><div class="fc-body"><div class="fc-status"><span class="pill">Group L · 1st</span></div><div class="fc-detail">4 pts · group stage in progress</div><ul class="fc-games"><li class="g-w"><span class="g-res">W</span><span class="g-score">4–2</span><span class="g-opp">v Croatia</span><span class="g-tag">Grp L</span></li><li class="g-d"><span class="g-res">D</span><span class="g-score">0–0</span><span class="g-opp">v Ghana</span><span class="g-tag">Grp L</span></li></ul><div class="note">Into the knockout rounds — every game is now win-or-go-home.</div></div></details>
 </section>
 
 <section>
@@ -407,6 +407,21 @@ const updatedEl = document.getElementById("updated-at");
 if (updatedEl && updatedEl.dataset.utc) {
   updatedEl.textContent = fmtLocalDateTime(updatedEl.dataset.utc) + " — auto-refreshed";
 }
+
+// ---- Remember each favorite's expanded state (per browser, localStorage) ----
+(function rememberFavState() {
+  const KEY = "wc26-fav-open";
+  let open;
+  try { open = new Set(JSON.parse(localStorage.getItem(KEY) || "[]")); } catch (e) { open = new Set(); }
+  document.querySelectorAll(".fav-card[data-fav]").forEach(card => {
+    const id = card.dataset.fav;
+    if (open.has(id)) card.open = true;
+    card.addEventListener("toggle", () => {
+      if (card.open) open.add(id); else open.delete(id);
+      try { localStorage.setItem(KEY, JSON.stringify([...open])); } catch (e) {}
+    });
+  });
+})();
 </script>
 </body>
 </html>

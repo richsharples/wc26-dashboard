@@ -532,7 +532,7 @@ def render_favorites_html(favs, group_tables, team_to_group, nodes, fixtures):
         note_html = f'<div class="note">{fav["note"]}</div>' if fav["note"] else ""
 
         cards.append(
-            f'<details class="fav-card {scls}" style="background:linear-gradient(135deg,{c1},{c2})">'
+            f'<details class="fav-card {scls}" data-fav="{name}" style="background:linear-gradient(135deg,{c1},{c2})">'
             f'<summary class="fc-head"><span class="flag">{fav["flag"]}</span>'
             f'<span class="name">{label}</span>'
             f'<span class="grp">{grp_txt}</span>'
