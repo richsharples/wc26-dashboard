@@ -27,7 +27,7 @@
     "Colombia": "🇨🇴", "Portugal": "🇵🇹", "Congo DR": "🇨🇩", "Uzbekistan": "🇺🇿",
     "England": "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "Ghana": "🇬🇭", "Croatia": "🇭🇷", "Panama": "🇵🇦"
   },
-  "_bracket_note": "Single-elimination bracket for WC2026. Match ids and feeder topology follow the official FIFA schedule (Wikipedia: 2026 FIFA World Cup knockout stage). Teams/scores are filled at refresh time from ESPN by matching the known seed in each tie; third-place slots resolve automatically once ESPN seeds the Round of 32. Edit dates/cities/feeders here if the official schedule changes.",
+  "_bracket_note": "Single-elimination bracket for WC2026. Match ids and feeder topology follow the official FIFA schedule (Wikipedia: 2026 FIFA World Cup knockout stage). Teams/scores are filled at refresh time from ESPN by matching the known seed in each tie; third-place slots resolve automatically once ESPN seeds the Round of 32. Edit dates/cities/feeders here if the official schedule changes. Add \"tv_uk\": \"BBC One\" (etc.) to a match to pin its UK channel; otherwise it shows \"BBC/ITV (TBC)\". US channels come automatically from the ESPN feed.",
   "bracket": [
     { "id": 73, "round": "R32", "date": "2026-06-28", "city": "Inglewood",      "a": {"seed": "2A"}, "b": {"seed": "2B"} },
     { "id": 74, "round": "R32", "date": "2026-06-29", "city": "Foxborough",     "a": {"seed": "1E"}, "b": {"third": "A/B/C/D/F"} },

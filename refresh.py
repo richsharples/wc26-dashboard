@@ -333,8 +333,12 @@ def build_bracket(bracket_def, group_tables, fixtures):
         expected = {t for t in (a_team, b_team) if t}
         fx = find_knockout_fixture(rnd, expected, fixtures, used)
 
+        # UK rights are split free-to-air across BBC and ITV; the per-match
+        # channel is confirmed only a few days out, so default to a provisional
+        # label. Pin a specific channel via "tv_uk" in groups_data.json.
         node = {"id": nid, "round": rnd, "date": d["date"], "city": d["city"],
-                "state": "pre", "winner": "", "tv_us": [], "tv_uk": d.get("tv_uk", "")}
+                "state": "pre", "winner": "", "tv_us": [],
+                "tv_uk": d.get("tv_uk") or "BBC/ITV (TBC)"}
 
         if fx:
             node["tv_us"] = fx.get("tv_us") or []
