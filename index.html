@@ -179,6 +179,19 @@
   .fixture-pane { margin-bottom: 16px; }
   .pane-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: #5a6172; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid #eef0f3; }
   #no-fixtures { font-size: 13px; color: #5a6172; padding: 6px 2px; }
+  /* fixture TV popover — mirrors the bracket tie-meta (hover on desktop, tap on touch) */
+  .fixture { position: relative; }
+  .fixture.has-meta { cursor: pointer; }
+  .fixture-info { position: absolute; top: 6px; right: 8px; font-size: 10px; color: #c2c7d0; z-index: 2; pointer-events: none; }
+  .fixture.live .fixture-info { color: #d23; }
+  .fixture-meta {
+    position: absolute; left: 0; right: 0; top: 100%; margin-top: 4px; z-index: 6;
+    background: #1a1d23; color: #fff; border-radius: 7px; padding: 7px 9px;
+    font-size: 11px; line-height: 1.4; box-shadow: 0 6px 18px rgba(0,0,0,.28);
+    display: none; text-align: left;
+  }
+  @media (hover: hover) { .fixture:hover .fixture-meta { display: block; } }
+  .fixture.meta-open .fixture-meta { display: block; }
 
   /* ---- Groups (archive) ---- */
   .groups-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(255px,1fr)); gap: 12px; }
@@ -392,14 +405,16 @@ function renderBracket() {
   }
 }
 
-// On touch devices (no hover), tap a tie to reveal its time/location/TV popover.
+// On touch devices (no hover), tap a tie or fixture to reveal its
+// time/location/TV popover.
 if (window.matchMedia("(hover: none)").matches) {
   document.addEventListener("click", e => {
-    const tie = e.target.closest(".tie");
-    const openTies = document.querySelectorAll(".tie.meta-open");
-    const wasOpen = tie && tie.classList.contains("meta-open");
-    openTies.forEach(t => { if (t !== tie) t.classList.remove("meta-open"); });
-    if (tie) tie.classList.toggle("meta-open", !wasOpen);
+    const node = e.target.closest(".tie, .fixture");
+    const open = document.querySelectorAll(".meta-open");
+    const hasMeta = node && (node.querySelector(".tie-meta") || node.querySelector(".fixture-meta"));
+    const wasOpen = node && node.classList.contains("meta-open");
+    open.forEach(t => { if (t !== node) t.classList.remove("meta-open"); });
+    if (hasMeta) node.classList.toggle("meta-open", !wasOpen);
   });
 }
 
@@ -426,21 +441,40 @@ groups.forEach(g => {
 function _esc(s) { return String(s == null ? "" : s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
 function _renderFixtureCard(f) {
   const tag = _esc(f.tag);
+  // TV coverage popover (US from ESPN, UK from live-footballontv.com) — same
+  // float-over detail as the bracket ties.
+  const tv = [];
+  if (f.tvUs) tv.push(`<span class="tm-tv"><b>US</b> ${_esc(f.tvUs)}</span>`);
+  if (f.tvUk) tv.push(`<span class="tm-tv"><b>UK</b> ${_esc(f.tvUk)}</span>`);
+  const tvHtml = tv.length ? `<span class="tm-tv-wrap">📺 ${tv.join("")}</span>` : "";
+
+  let cls = "fixture", grp, teams, time, when;
   if (f.completed) {
     let pens = "";
     if (f.homePen != null && f.awayPen != null) pens = ` (p ${f.homePen}–${f.awayPen})`;
-    return `<div class="fixture"><div class="grp">${tag} — Final</div>`
-      + `<div class="teams">${_esc(f.home)} ${_esc(f.homeScore)}–${_esc(f.awayScore)}${pens} ${_esc(f.away)}</div>`
-      + `<div class="time">Full-time — ${_esc(f.venue)}</div></div>`;
+    grp = `${tag} — Final`;
+    teams = `${_esc(f.home)} ${_esc(f.homeScore)}–${_esc(f.awayScore)}${pens} ${_esc(f.away)}`;
+    time = `Full-time — ${_esc(f.venue)}`;
+    when = "Full-time";
+  } else if (f.state === "in") {
+    cls = "fixture live";
+    grp = tag;
+    teams = `<span class="live-dot"></span>${_esc(f.home)} vs ${_esc(f.away)}`;
+    time = `Live — ${_esc(f.venue)}`;
+    when = "Live now";
+  } else {
+    grp = tag;
+    teams = `${_esc(f.home)} vs ${_esc(f.away)}`;
+    time = `${fmtLocalDateTime(f.utc)} — ${_esc(f.venue)}`;
+    when = fmtLocalDateTime(f.utc);
   }
-  if (f.state === "in") {
-    return `<div class="fixture live"><div class="grp">${tag}</div>`
-      + `<div class="teams"><span class="live-dot"></span>${_esc(f.home)} vs ${_esc(f.away)}</div>`
-      + `<div class="time">Live — ${_esc(f.venue)}</div></div>`;
-  }
-  return `<div class="fixture"><div class="grp">${tag}</div>`
-    + `<div class="teams">${_esc(f.home)} vs ${_esc(f.away)}</div>`
-    + `<div class="time">${fmtLocalDateTime(f.utc)} — ${_esc(f.venue)}</div></div>`;
+
+  if (tvHtml) cls += " has-meta";
+  const info = tvHtml ? `<span class="fixture-info">ⓘ</span>` : "";
+  const meta = tvHtml ? `<div class="fixture-meta">${when} · ${_esc(f.venue)}${tvHtml}</div>` : "";
+  return `<div class="${cls}">${info}<div class="grp">${grp}</div>`
+    + `<div class="teams">${teams}</div>`
+    + `<div class="time">${time}</div>${meta}</div>`;
 }
 (function renderFixturePanes() {
   const now = new Date();

@@ -18,6 +18,7 @@ Usage: python3 refresh.py
 Reads:  groups_data.json, favorites.md, index.html (as the template to patch)
 Writes: index.html
 """
+import html as ihtml
 import json
 import re
 import sys
@@ -28,6 +29,7 @@ from pathlib import Path
 
 HERE = Path(__file__).parent
 SCOREBOARD = "https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard"
+FOOTBALL_ON_TV = "https://www.live-footballontv.com/live-world-cup-football-on-tv.html"
 TOURN_START = datetime.date(2026, 6, 11)
 TOURN_END = datetime.date(2026, 7, 19)
 GROUP_END = datetime.date(2026, 6, 27)
@@ -72,6 +74,125 @@ def collect_events():
             print(f"warning: failed to fetch {d}: {e}", file=sys.stderr)
         d += datetime.timedelta(days=1)
     return events
+
+
+# ---------------------------------------------------------------------------
+# UK TV coverage (live-footballontv.com)
+# ---------------------------------------------------------------------------
+# UK rights are split free-to-air across the BBC and ITV; live-footballontv.com
+# publishes the confirmed channel per fixture. We scrape it (HTML -> text, then
+# pattern-match), key the result on the unordered team pair, and use it to fill
+# tv_uk for bracket ties and the fixtures feed. Anything we can't match falls
+# back to the provisional "BBC/ITV (TBC)" label, so a failed/empty scrape never
+# breaks the page.
+
+# live-footballontv.com names that differ from our ESPN/groups_data names,
+# keyed by the normalised (letters-only, lowercase) form.
+UK_TV_ALIASES = {
+    "usa": "United States",
+    "unitedstatesofamerica": "United States",
+    "korearepublic": "South Korea",
+    "republicofkorea": "South Korea",
+    "turkey": "Türkiye",
+    "turkiye": "Türkiye",
+    "czechrepublic": "Czechia",
+    "drcongo": "Congo DR",
+    "democraticrepublicofcongo": "Congo DR",
+    "bosniaandherzegovina": "Bosnia-Herzegovina",
+    "bosniaherzegovina": "Bosnia-Herzegovina",
+    "curacao": "Curaçao",
+    "cotedivoire": "Ivory Coast",
+    "caboverde": "Cape Verde",
+}
+
+# A UK channel line starts with one of these broadcasters (e.g. "ITV1",
+# "BBC One", "S4C"). No trailing \b — it would reject "ITV1"/"ITV4".
+UK_CHANNEL_RE = re.compile(r"^(?:BBC|ITV|STV|S4C)", re.I)
+VS_RE = re.compile(r"^(.+?)\s+v(?:s)?\.?\s+(.+?)$", re.I)
+
+
+def _norm_team(name):
+    return re.sub(r"[^a-z]", "", (name or "").lower())
+
+
+def _canon_team(name, known_norm):
+    """Map a scraped team name onto our canonical name, or None if unknown."""
+    key = _norm_team(name)
+    if key in known_norm:
+        return known_norm[key]
+    return UK_TV_ALIASES.get(key)
+
+
+def http_get_text(url):
+    req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT, "Accept": "text/html"})
+    with urllib.request.urlopen(req, timeout=20) as resp:
+        charset = resp.headers.get_content_charset() or "utf-8"
+        return resp.read().decode(charset, "replace")
+
+
+def _html_to_lines(raw):
+    raw = re.sub(r"(?is)<(script|style)\b.*?</\1>", " ", raw)
+    raw = re.sub(r"(?i)<br\s*/?>", "\n", raw)
+    raw = re.sub(r"(?s)<[^>]+>", "\n", raw)
+    text = ihtml.unescape(raw)
+    lines = (re.sub(r"\s+", " ", ln).strip() for ln in text.splitlines())
+    return [ln for ln in lines if ln]
+
+
+def parse_uk_tv(raw, known_norm):
+    """Parse live-footballontv.com HTML into {frozenset({teamA, teamB}): 'ITV1'}.
+
+    The page lays each fixture out as kickoff time, "Team A v Team B", the
+    competition, then one channel per line. We walk the flattened text: on a
+    teams line whose sides both resolve to known teams, we collect the channel
+    lines that follow until the next fixture."""
+    lines = _html_to_lines(raw)
+    out = {}
+    n = len(lines)
+    i = 0
+    while i < n:
+        m = VS_RE.match(lines[i])
+        a = _canon_team(m.group(1), known_norm) if m else None
+        b = _canon_team(m.group(2), known_norm) if m else None
+        if not (a and b):
+            i += 1
+            continue
+        chans = []
+        j = i + 1
+        while j < n and j <= i + 6:
+            nxt = lines[j]
+            if UK_CHANNEL_RE.match(nxt):
+                for c in re.split(r"\s*(?:,|&|/|\+| and )\s*", nxt):
+                    c = c.strip()
+                    if c and c not in chans:
+                        chans.append(c)
+            elif VS_RE.match(nxt):
+                break  # next fixture started
+            j += 1
+        if chans:
+            out[frozenset((a, b))] = ", ".join(chans)
+        i = max(j, i + 1)
+    return out
+
+
+def fetch_uk_tv(teams):
+    known_norm = {_norm_team(t): t for t in teams}
+    try:
+        raw = http_get_text(FOOTBALL_ON_TV)
+    except Exception as e:
+        print(f"warning: UK TV fetch failed: {e}", file=sys.stderr)
+        return {}
+    try:
+        table = parse_uk_tv(raw, known_norm)
+    except Exception as e:
+        print(f"warning: UK TV parse failed: {e}", file=sys.stderr)
+        return {}
+    print(f"UK TV: matched {len(table)} fixtures from live-footballontv.com")
+    return table
+
+
+def uk_tv_for(home, away, uk_tv):
+    return uk_tv.get(frozenset((home, away)), "")
 
 
 def round_for_date(d):
@@ -313,8 +434,9 @@ def find_knockout_fixture(rnd, expected, fixtures, used):
     return None
 
 
-def build_bracket(bracket_def, group_tables, fixtures):
+def build_bracket(bracket_def, group_tables, fixtures, uk_tv=None):
     """Return ordered list of resolved bracket nodes for rendering."""
+    uk_tv = uk_tv or {}
     nodes = {}
     winner_team, loser_team = {}, {}
     used = set()
@@ -364,6 +486,9 @@ def build_bracket(bracket_def, group_tables, fixtures):
                 b_win = fx["winner"] == "home"
             node["a"] = {"name": a_name, "score": a_sc, "pen": a_pen}
             node["b"] = {"name": b_name, "score": b_sc, "pen": b_pen}
+            uk = uk_tv.get(frozenset((a_name, b_name)))
+            if uk:
+                node["tv_uk"] = uk
             node["state"] = fx["state"] or "pre"
             node["when"] = fx["dt"]
             node["city"] = fx["city"] or d["city"]
@@ -381,6 +506,10 @@ def build_bracket(bracket_def, group_tables, fixtures):
                          "tbd": a_team is None}
             node["b"] = {"name": b_team or seed_label(d["b"]), "score": None, "pen": None,
                          "tbd": b_team is None}
+            if a_team and b_team:
+                uk = uk_tv.get(frozenset((a_team, b_team)))
+                if uk:
+                    node["tv_uk"] = uk
             node["when"] = None
 
         nodes[nid] = node
@@ -569,10 +698,11 @@ def render_team_cards(teams, group_tables, team_to_group, nodes, fixtures, flags
     return cards
 
 
-def render_fixtures_data(fixtures, now):
+def render_fixtures_data(fixtures, now, uk_tv=None):
     """Emit a JSON array of fixtures (in-progress + recent + next ~5 days).
     The browser groups these into Today / Tomorrow / Upcoming panes using the
     viewer's local date, so grouping must happen client-side."""
+    uk_tv = uk_tv or {}
     window_end = now + datetime.timedelta(days=5)
     chosen = []
     for f in fixtures:
@@ -597,6 +727,8 @@ def render_fixtures_data(fixtures, now):
             "homePen": f["home_pen"], "awayPen": f["away_pen"],
             "completed": f["completed"], "state": f["state"] or "",
             "venue": f["city"] or f["venue"],
+            "tvUs": ", ".join(f.get("tv_us") or []),
+            "tvUk": uk_tv_for(f["home"], f["away"], uk_tv),
         })
     return json.dumps(items, ensure_ascii=False)
 
@@ -624,7 +756,8 @@ def main():
     events = collect_events()
     stats, fixtures = parse_events(events, team_to_group)
     group_tables = build_group_tables(groups_def, stats)
-    nodes = build_bracket(bracket_def, group_tables, fixtures)
+    uk_tv = fetch_uk_tv(team_to_group.keys())
+    nodes = build_bracket(bracket_def, group_tables, fixtures, uk_tv)
 
     favs = parse_favorites((HERE / "favorites.md").read_text(encoding="utf-8"))
     overrides = {f["name"]: f for f in favs}
@@ -638,7 +771,7 @@ def main():
         "bracket": render_bracket_js(nodes),
         "teamcards": json.dumps(team_cards, ensure_ascii=False),
         "allteams": json.dumps(all_teams, ensure_ascii=False),
-        "fixtures": render_fixtures_data(fixtures, now),
+        "fixtures": render_fixtures_data(fixtures, now, uk_tv),
         "timestamp": now.strftime("%b %-d, %Y, %H:%M UTC") + " — auto-refreshed",
         "updated_iso": now.strftime("%Y-%m-%dT%H:%M:%SZ"),
     }
