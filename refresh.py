@@ -124,9 +124,14 @@ def ordinal(n):
     return {1: "1st", 2: "2nd", 3: "3rd", 4: "4th"}.get(n, "—" if n is None else f"{n}th")
 
 
-def parse_events(events, team_to_group):
+def pair_key(a, b):
+    return "|".join(sorted([a, b]))
+
+
+def parse_events(events, team_to_group, tv_uk_extra=None):
     """Return (group_stats, fixtures). Stats accumulate group-stage results
     only; fixtures cover every match with round, winner side and shootout."""
+    tv_uk_extra = tv_uk_extra or {}
     stats = {}
     fixtures = []
     for ev in events:
@@ -195,7 +200,7 @@ def parse_events(events, team_to_group):
             "home_pen": pen(home), "away_pen": pen(away),
             "completed": completed, "state": state, "winner": winner,
             "venue": venue, "city": city, "date": date_iso, "dt": dt,
-            "tv_us": tv_us,
+            "tv_us": tv_us, "tv_uk": tv_uk_extra.get(pair_key(home_name, away_name), ""),
         })
 
         if rnd != "group" or not completed or hs is None or asc is None:
@@ -342,6 +347,10 @@ def build_bracket(bracket_def, group_tables, fixtures):
 
         if fx:
             node["tv_us"] = fx.get("tv_us") or []
+            # Push the slot's pinned UK channel back onto the fixture so the
+            # Today/Upcoming panel shows the same channel as the bracket.
+            if node["tv_uk"]:
+                fx["tv_uk"] = node["tv_uk"]
             ht, at = fx["home"], fx["away"]
             # Orient ESPN home/away onto the tie's a/b slots.
             if a_team and a_team == at:
@@ -589,6 +598,7 @@ def render_fixtures_data(fixtures, now):
             tag = f"Group {f['group']}" if f["group"] else "Group stage"
         else:
             tag = ROUND_LABELS.get(f["round"], f["round"])
+        tv_uk = f.get("tv_uk") or ("BBC/ITV (TBC)" if f["round"] != "group" else "")
         items.append({
             "utc": dt.astimezone(datetime.timezone.utc).isoformat(),
             "tag": tag,
@@ -597,6 +607,7 @@ def render_fixtures_data(fixtures, now):
             "homePen": f["home_pen"], "awayPen": f["away_pen"],
             "completed": f["completed"], "state": f["state"] or "",
             "venue": f["city"] or f["venue"],
+            "tvUs": ", ".join(f.get("tv_us") or []), "tvUk": tv_uk,
         })
     return json.dumps(items, ensure_ascii=False)
 
@@ -622,7 +633,7 @@ def main():
     team_to_group = {team: g for g, teams in groups_def.items() for team in teams}
 
     events = collect_events()
-    stats, fixtures = parse_events(events, team_to_group)
+    stats, fixtures = parse_events(events, team_to_group, data.get("tv_uk_extra", {}))
     group_tables = build_group_tables(groups_def, stats)
     nodes = build_bracket(bracket_def, group_tables, fixtures)
 

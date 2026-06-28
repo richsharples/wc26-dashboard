@@ -171,11 +171,23 @@
 
   /* ---- Fixtures ---- */
   .fixtures-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px,1fr)); gap: 10px; }
-  .fixture { background: #fff; border: 1px solid #e2e5ea; border-radius: 10px; padding: 10px 12px; font-size: 13px; }
+  .fixture { background: #fff; border: 1px solid #e2e5ea; border-radius: 10px; padding: 10px 12px; font-size: 13px; position: relative; cursor: pointer; }
   .fixture .grp { font-size: 11px; color: #888; text-transform: uppercase; font-weight: 600; }
   .fixture .teams { font-weight: 600; margin: 4px 0; }
-  .fixture .time { color: #5a6172; font-size: 12px; }
   .fixture.live { border-color: #d23; box-shadow: 0 0 0 2px rgba(210,30,50,.08); }
+  .fx-info { position: absolute; top: 8px; right: 10px; font-size: 10px; color: #b3b8c2; pointer-events: none; }
+  .fixture.live .fx-info { color: #d23; }
+  /* time / location / TV — hidden until hover (desktop) or tap (touch) */
+  .fixture-meta {
+    position: absolute; left: 0; right: 0; top: 100%; margin-top: 4px; z-index: 6;
+    background: #1a1d23; color: #fff; border-radius: 8px; padding: 8px 10px;
+    font-size: 12px; line-height: 1.45; box-shadow: 0 6px 18px rgba(0,0,0,.28);
+    display: none; text-align: left;
+  }
+  .fixture-meta .tm-tv { display: block; margin-top: 3px; color: #d7dbe2; }
+  .fixture-meta .tm-tv b { color: #fff; font-weight: 700; margin-right: 3px; }
+  @media (hover: hover) { .fixture:hover .fixture-meta { display: block; } }
+  .fixture.meta-open .fixture-meta { display: block; }
   .fixture-pane { margin-bottom: 16px; }
   .pane-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: #5a6172; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid #eef0f3; }
   #no-fixtures { font-size: 13px; color: #5a6172; padding: 6px 2px; }
@@ -216,7 +228,7 @@
     <h1>🏆 FIFA World Cup 2026 — Dashboard</h1>
     <div class="sub">Knockout phase · favorites tracker · live bracket</div>
   </div>
-  <div class="updated">Last refreshed: <b id="updated-at" data-utc="2026-06-28T22:52:55Z">Jun 28, 2026, 22:52 UTC — auto-refreshed</b></div>
+  <div class="updated">Last refreshed: <b id="updated-at" data-utc="2026-06-28T23:04:03Z">Jun 28, 2026, 23:04 UTC — auto-refreshed</b></div>
 </header>
 
 <section class="fav-section">
@@ -293,22 +305,22 @@ const groups = [
 ];
 
 const bracket = [
-  {"id": 73, "round": "R32", "utc": "2026-06-28T19:00:00+00:00", "day": "Jun 28", "city": "Inglewood, California", "state": "post", "winner": "b", "tvUs": "FOX, Telemundo, FOX One", "tvUk": "BBC/ITV (TBC)", "a": {"name": "South Africa", "score": 0, "pen": null, "tbd": false}, "b": {"name": "Canada", "score": 1, "pen": null, "tbd": false}},
-  {"id": 74, "round": "R32", "utc": "2026-06-29T20:30:00+00:00", "day": "Jun 29", "city": "Foxborough, Massachusetts", "state": "pre", "winner": "", "tvUs": "FOX, Telemundo, FOX One", "tvUk": "BBC/ITV (TBC)", "a": {"name": "Germany", "score": 0, "pen": null, "tbd": false}, "b": {"name": "Paraguay", "score": 0, "pen": null, "tbd": false}},
-  {"id": 75, "round": "R32", "utc": "2026-06-30T01:00:00+00:00", "day": "Jun 30", "city": "Guadalupe", "state": "pre", "winner": "", "tvUs": "FOX, Telemundo, FOX One", "tvUk": "BBC/ITV (TBC)", "a": {"name": "Netherlands", "score": 0, "pen": null, "tbd": false}, "b": {"name": "Morocco", "score": 0, "pen": null, "tbd": false}},
-  {"id": 76, "round": "R32", "utc": "2026-06-29T17:00:00+00:00", "day": "Jun 29", "city": "Houston, Texas", "state": "pre", "winner": "", "tvUs": "FOX, Telemundo, FOX One", "tvUk": "BBC/ITV (TBC)", "a": {"name": "Brazil", "score": 0, "pen": null, "tbd": false}, "b": {"name": "Japan", "score": 0, "pen": null, "tbd": false}},
-  {"id": 77, "round": "R32", "utc": "2026-06-30T21:00:00+00:00", "day": "Jun 30", "city": "East Rutherford, New Jersey", "state": "pre", "winner": "", "tvUs": "FOX, Telemundo, FOX One", "tvUk": "BBC/ITV (TBC)", "a": {"name": "France", "score": 0, "pen": null, "tbd": false}, "b": {"name": "Sweden", "score": 0, "pen": null, "tbd": false}},
-  {"id": 78, "round": "R32", "utc": "2026-06-30T17:00:00+00:00", "day": "Jun 30", "city": "Arlington, Texas", "state": "pre", "winner": "", "tvUs": "FOX, Telemundo, FOX One", "tvUk": "BBC/ITV (TBC)", "a": {"name": "Ivory Coast", "score": 0, "pen": null, "tbd": false}, "b": {"name": "Norway", "score": 0, "pen": null, "tbd": false}},
-  {"id": 79, "round": "R32", "utc": "2026-07-01T01:00:00+00:00", "day": "Jul 1", "city": "Mexico City", "state": "pre", "winner": "", "tvUs": "FOX, Telemundo, FOX One", "tvUk": "BBC/ITV (TBC)", "a": {"name": "Mexico", "score": 0, "pen": null, "tbd": false}, "b": {"name": "Ecuador", "score": 0, "pen": null, "tbd": false}},
-  {"id": 80, "round": "R32", "utc": "2026-07-01T16:00:00+00:00", "day": "Jul 1", "city": "Atlanta, Georgia", "state": "pre", "winner": "", "tvUs": "FOX, Telemundo, FOX One", "tvUk": "BBC/ITV (TBC)", "a": {"name": "England", "score": 0, "pen": null, "tbd": false}, "b": {"name": "Congo DR", "score": 0, "pen": null, "tbd": false}},
-  {"id": 81, "round": "R32", "utc": "2026-07-02T00:00:00+00:00", "day": "Jul 2", "city": "Santa Clara, California", "state": "pre", "winner": "", "tvUs": "FOX, Telemundo, FOX One", "tvUk": "BBC/ITV (TBC)", "a": {"name": "United States", "score": 0, "pen": null, "tbd": false}, "b": {"name": "Bosnia-Herzegovina", "score": 0, "pen": null, "tbd": false}},
-  {"id": 82, "round": "R32", "utc": "2026-07-01T20:00:00+00:00", "day": "Jul 1", "city": "Seattle, Washington", "state": "pre", "winner": "", "tvUs": "FS1, Telemundo, FOX One", "tvUk": "BBC/ITV (TBC)", "a": {"name": "Belgium", "score": 0, "pen": null, "tbd": false}, "b": {"name": "Senegal", "score": 0, "pen": null, "tbd": false}},
-  {"id": 83, "round": "R32", "utc": "2026-07-02T23:00:00+00:00", "day": "Jul 2", "city": "Toronto", "state": "pre", "winner": "", "tvUs": "FOX, Telemundo, FOX One", "tvUk": "BBC/ITV (TBC)", "a": {"name": "Portugal", "score": 0, "pen": null, "tbd": false}, "b": {"name": "Croatia", "score": 0, "pen": null, "tbd": false}},
-  {"id": 84, "round": "R32", "utc": "2026-07-02T19:00:00+00:00", "day": "Jul 2", "city": "Inglewood, California", "state": "pre", "winner": "", "tvUs": "FOX, Telemundo, FOX One", "tvUk": "BBC/ITV (TBC)", "a": {"name": "Spain", "score": 0, "pen": null, "tbd": false}, "b": {"name": "Austria", "score": 0, "pen": null, "tbd": false}},
-  {"id": 85, "round": "R32", "utc": "2026-07-03T03:00:00+00:00", "day": "Jul 3", "city": "Vancouver", "state": "pre", "winner": "", "tvUs": "FS1, Telemundo, FOX One", "tvUk": "BBC/ITV (TBC)", "a": {"name": "Switzerland", "score": 0, "pen": null, "tbd": false}, "b": {"name": "Algeria", "score": 0, "pen": null, "tbd": false}},
-  {"id": 86, "round": "R32", "utc": "2026-07-03T22:00:00+00:00", "day": "Jul 3", "city": "Miami Gardens, Florida", "state": "pre", "winner": "", "tvUs": "FOX, Telemundo, FOX One", "tvUk": "BBC/ITV (TBC)", "a": {"name": "Argentina", "score": 0, "pen": null, "tbd": false}, "b": {"name": "Cape Verde", "score": 0, "pen": null, "tbd": false}},
-  {"id": 87, "round": "R32", "utc": "", "day": "Jul 3", "city": "Kansas City", "state": "pre", "winner": "", "tvUs": "", "tvUk": "BBC/ITV (TBC)", "a": {"name": "Colombia", "score": null, "pen": null, "tbd": false}, "b": {"name": "3rd: D/E/I/J/L", "score": null, "pen": null, "tbd": true}},
-  {"id": 88, "round": "R32", "utc": "2026-07-03T18:00:00+00:00", "day": "Jul 3", "city": "Arlington, Texas", "state": "pre", "winner": "", "tvUs": "FOX, Telemundo, FOX One", "tvUk": "BBC/ITV (TBC)", "a": {"name": "Australia", "score": 0, "pen": null, "tbd": false}, "b": {"name": "Egypt", "score": 0, "pen": null, "tbd": false}},
+  {"id": 73, "round": "R32", "utc": "2026-06-28T19:00:00+00:00", "day": "Jun 28", "city": "Inglewood, California", "state": "post", "winner": "b", "tvUs": "FOX, Telemundo, FOX One", "tvUk": "ITV1", "a": {"name": "South Africa", "score": 0, "pen": null, "tbd": false}, "b": {"name": "Canada", "score": 1, "pen": null, "tbd": false}},
+  {"id": 74, "round": "R32", "utc": "2026-06-29T20:30:00+00:00", "day": "Jun 29", "city": "Foxborough, Massachusetts", "state": "pre", "winner": "", "tvUs": "FOX, Telemundo, FOX One", "tvUk": "BBC One", "a": {"name": "Germany", "score": 0, "pen": null, "tbd": false}, "b": {"name": "Paraguay", "score": 0, "pen": null, "tbd": false}},
+  {"id": 75, "round": "R32", "utc": "2026-06-30T01:00:00+00:00", "day": "Jun 30", "city": "Guadalupe", "state": "pre", "winner": "", "tvUs": "FOX, Telemundo, FOX One", "tvUk": "ITV1", "a": {"name": "Netherlands", "score": 0, "pen": null, "tbd": false}, "b": {"name": "Morocco", "score": 0, "pen": null, "tbd": false}},
+  {"id": 76, "round": "R32", "utc": "2026-06-29T17:00:00+00:00", "day": "Jun 29", "city": "Houston, Texas", "state": "pre", "winner": "", "tvUs": "FOX, Telemundo, FOX One", "tvUk": "ITV1", "a": {"name": "Brazil", "score": 0, "pen": null, "tbd": false}, "b": {"name": "Japan", "score": 0, "pen": null, "tbd": false}},
+  {"id": 77, "round": "R32", "utc": "2026-06-30T21:00:00+00:00", "day": "Jun 30", "city": "East Rutherford, New Jersey", "state": "pre", "winner": "", "tvUs": "FOX, Telemundo, FOX One", "tvUk": "ITV1", "a": {"name": "France", "score": 0, "pen": null, "tbd": false}, "b": {"name": "Sweden", "score": 0, "pen": null, "tbd": false}},
+  {"id": 78, "round": "R32", "utc": "2026-06-30T17:00:00+00:00", "day": "Jun 30", "city": "Arlington, Texas", "state": "pre", "winner": "", "tvUs": "FOX, Telemundo, FOX One", "tvUk": "BBC One", "a": {"name": "Ivory Coast", "score": 0, "pen": null, "tbd": false}, "b": {"name": "Norway", "score": 0, "pen": null, "tbd": false}},
+  {"id": 79, "round": "R32", "utc": "2026-07-01T01:00:00+00:00", "day": "Jul 1", "city": "Mexico City", "state": "pre", "winner": "", "tvUs": "FOX, Telemundo, FOX One", "tvUk": "ITV1", "a": {"name": "Mexico", "score": 0, "pen": null, "tbd": false}, "b": {"name": "Ecuador", "score": 0, "pen": null, "tbd": false}},
+  {"id": 80, "round": "R32", "utc": "2026-07-01T16:00:00+00:00", "day": "Jul 1", "city": "Atlanta, Georgia", "state": "pre", "winner": "", "tvUs": "FOX, Telemundo, FOX One", "tvUk": "BBC One", "a": {"name": "England", "score": 0, "pen": null, "tbd": false}, "b": {"name": "Congo DR", "score": 0, "pen": null, "tbd": false}},
+  {"id": 81, "round": "R32", "utc": "2026-07-02T00:00:00+00:00", "day": "Jul 2", "city": "Santa Clara, California", "state": "pre", "winner": "", "tvUs": "FOX, Telemundo, FOX One", "tvUk": "BBC One", "a": {"name": "United States", "score": 0, "pen": null, "tbd": false}, "b": {"name": "Bosnia-Herzegovina", "score": 0, "pen": null, "tbd": false}},
+  {"id": 82, "round": "R32", "utc": "2026-07-01T20:00:00+00:00", "day": "Jul 1", "city": "Seattle, Washington", "state": "pre", "winner": "", "tvUs": "FS1, Telemundo, FOX One", "tvUk": "ITV1", "a": {"name": "Belgium", "score": 0, "pen": null, "tbd": false}, "b": {"name": "Senegal", "score": 0, "pen": null, "tbd": false}},
+  {"id": 83, "round": "R32", "utc": "2026-07-02T23:00:00+00:00", "day": "Jul 2", "city": "Toronto", "state": "pre", "winner": "", "tvUs": "FOX, Telemundo, FOX One", "tvUk": "BBC One", "a": {"name": "Portugal", "score": 0, "pen": null, "tbd": false}, "b": {"name": "Croatia", "score": 0, "pen": null, "tbd": false}},
+  {"id": 84, "round": "R32", "utc": "2026-07-02T19:00:00+00:00", "day": "Jul 2", "city": "Inglewood, California", "state": "pre", "winner": "", "tvUs": "FOX, Telemundo, FOX One", "tvUk": "BBC One", "a": {"name": "Spain", "score": 0, "pen": null, "tbd": false}, "b": {"name": "Austria", "score": 0, "pen": null, "tbd": false}},
+  {"id": 85, "round": "R32", "utc": "2026-07-03T03:00:00+00:00", "day": "Jul 3", "city": "Vancouver", "state": "pre", "winner": "", "tvUs": "FS1, Telemundo, FOX One", "tvUk": "BBC One", "a": {"name": "Switzerland", "score": 0, "pen": null, "tbd": false}, "b": {"name": "Algeria", "score": 0, "pen": null, "tbd": false}},
+  {"id": 86, "round": "R32", "utc": "2026-07-03T22:00:00+00:00", "day": "Jul 3", "city": "Miami Gardens, Florida", "state": "pre", "winner": "", "tvUs": "FOX, Telemundo, FOX One", "tvUk": "ITV1", "a": {"name": "Argentina", "score": 0, "pen": null, "tbd": false}, "b": {"name": "Cape Verde", "score": 0, "pen": null, "tbd": false}},
+  {"id": 87, "round": "R32", "utc": "", "day": "Jul 3", "city": "Kansas City", "state": "pre", "winner": "", "tvUs": "", "tvUk": "ITV1", "a": {"name": "Colombia", "score": null, "pen": null, "tbd": false}, "b": {"name": "3rd: D/E/I/J/L", "score": null, "pen": null, "tbd": true}},
+  {"id": 88, "round": "R32", "utc": "2026-07-03T18:00:00+00:00", "day": "Jul 3", "city": "Arlington, Texas", "state": "pre", "winner": "", "tvUs": "FOX, Telemundo, FOX One", "tvUk": "BBC One", "a": {"name": "Australia", "score": 0, "pen": null, "tbd": false}, "b": {"name": "Egypt", "score": 0, "pen": null, "tbd": false}},
   {"id": 89, "round": "R16", "utc": "", "day": "Jul 4", "city": "Philadelphia", "state": "pre", "winner": "", "tvUs": "", "tvUk": "BBC/ITV (TBC)", "a": {"name": "Winner M74", "score": null, "pen": null, "tbd": true}, "b": {"name": "Winner M77", "score": null, "pen": null, "tbd": true}},
   {"id": 90, "round": "R16", "utc": "2026-07-04T17:00:00+00:00", "day": "Jul 4", "city": "Houston, Texas", "state": "pre", "winner": "", "tvUs": "FOX, Telemundo, FOX One", "tvUk": "BBC/ITV (TBC)", "a": {"name": "Canada", "score": 0, "pen": null, "tbd": false}, "b": {"name": "Round of 32 3 Winner", "score": 0, "pen": null, "tbd": false}},
   {"id": 91, "round": "R16", "utc": "", "day": "Jul 5", "city": "East Rutherford", "state": "pre", "winner": "", "tvUs": "", "tvUk": "BBC/ITV (TBC)", "a": {"name": "Winner M76", "score": null, "pen": null, "tbd": true}, "b": {"name": "Winner M78", "score": null, "pen": null, "tbd": true}},
@@ -331,7 +343,7 @@ const teamCards = {"Algeria": "<details class=\"fav-card alive\" data-fav=\"Alge
 
 const allTeams = ["Algeria", "Argentina", "Australia", "Austria", "Belgium", "Bosnia-Herzegovina", "Brazil", "Canada", "Cape Verde", "Colombia", "Congo DR", "Croatia", "Curaçao", "Czechia", "Ecuador", "Egypt", "England", "France", "Germany", "Ghana", "Haiti", "Iran", "Iraq", "Ivory Coast", "Japan", "Jordan", "Mexico", "Morocco", "Netherlands", "New Zealand", "Norway", "Panama", "Paraguay", "Portugal", "Qatar", "Saudi Arabia", "Scotland", "Senegal", "South Africa", "South Korea", "Spain", "Sweden", "Switzerland", "Tunisia", "Türkiye", "United States", "Uruguay", "Uzbekistan"];
 
-const fixturesData = [{"utc": "2026-06-28T19:00:00+00:00", "tag": "Round of 32", "home": "South Africa", "away": "Canada", "homeScore": 0, "awayScore": 1, "homePen": null, "awayPen": null, "completed": true, "state": "post", "venue": "Inglewood, California"}, {"utc": "2026-06-29T17:00:00+00:00", "tag": "Round of 32", "home": "Brazil", "away": "Japan", "homeScore": 0, "awayScore": 0, "homePen": null, "awayPen": null, "completed": false, "state": "pre", "venue": "Houston, Texas"}, {"utc": "2026-06-29T20:30:00+00:00", "tag": "Round of 32", "home": "Germany", "away": "Paraguay", "homeScore": 0, "awayScore": 0, "homePen": null, "awayPen": null, "completed": false, "state": "pre", "venue": "Foxborough, Massachusetts"}, {"utc": "2026-06-30T01:00:00+00:00", "tag": "Round of 32", "home": "Netherlands", "away": "Morocco", "homeScore": 0, "awayScore": 0, "homePen": null, "awayPen": null, "completed": false, "state": "pre", "venue": "Guadalupe"}, {"utc": "2026-06-30T17:00:00+00:00", "tag": "Round of 32", "home": "Ivory Coast", "away": "Norway", "homeScore": 0, "awayScore": 0, "homePen": null, "awayPen": null, "completed": false, "state": "pre", "venue": "Arlington, Texas"}, {"utc": "2026-06-30T21:00:00+00:00", "tag": "Round of 32", "home": "France", "away": "Sweden", "homeScore": 0, "awayScore": 0, "homePen": null, "awayPen": null, "completed": false, "state": "pre", "venue": "East Rutherford, New Jersey"}, {"utc": "2026-07-01T01:00:00+00:00", "tag": "Round of 32", "home": "Mexico", "away": "Ecuador", "homeScore": 0, "awayScore": 0, "homePen": null, "awayPen": null, "completed": false, "state": "pre", "venue": "Mexico City"}, {"utc": "2026-07-01T16:00:00+00:00", "tag": "Round of 32", "home": "England", "away": "Congo DR", "homeScore": 0, "awayScore": 0, "homePen": null, "awayPen": null, "completed": false, "state": "pre", "venue": "Atlanta, Georgia"}, {"utc": "2026-07-01T20:00:00+00:00", "tag": "Round of 32", "home": "Belgium", "away": "Senegal", "homeScore": 0, "awayScore": 0, "homePen": null, "awayPen": null, "completed": false, "state": "pre", "venue": "Seattle, Washington"}, {"utc": "2026-07-02T00:00:00+00:00", "tag": "Round of 32", "home": "United States", "away": "Bosnia-Herzegovina", "homeScore": 0, "awayScore": 0, "homePen": null, "awayPen": null, "completed": false, "state": "pre", "venue": "Santa Clara, California"}, {"utc": "2026-07-02T19:00:00+00:00", "tag": "Round of 32", "home": "Spain", "away": "Austria", "homeScore": 0, "awayScore": 0, "homePen": null, "awayPen": null, "completed": false, "state": "pre", "venue": "Inglewood, California"}, {"utc": "2026-07-02T23:00:00+00:00", "tag": "Round of 32", "home": "Portugal", "away": "Croatia", "homeScore": 0, "awayScore": 0, "homePen": null, "awayPen": null, "completed": false, "state": "pre", "venue": "Toronto"}, {"utc": "2026-07-03T03:00:00+00:00", "tag": "Round of 32", "home": "Switzerland", "away": "Algeria", "homeScore": 0, "awayScore": 0, "homePen": null, "awayPen": null, "completed": false, "state": "pre", "venue": "Vancouver"}, {"utc": "2026-07-03T18:00:00+00:00", "tag": "Round of 32", "home": "Australia", "away": "Egypt", "homeScore": 0, "awayScore": 0, "homePen": null, "awayPen": null, "completed": false, "state": "pre", "venue": "Arlington, Texas"}, {"utc": "2026-07-03T22:00:00+00:00", "tag": "Round of 32", "home": "Argentina", "away": "Cape Verde", "homeScore": 0, "awayScore": 0, "homePen": null, "awayPen": null, "completed": false, "state": "pre", "venue": "Miami Gardens, Florida"}];
+const fixturesData = [{"utc": "2026-06-29T17:00:00+00:00", "tag": "Round of 32", "home": "Brazil", "away": "Japan", "homeScore": 0, "awayScore": 0, "homePen": null, "awayPen": null, "completed": false, "state": "pre", "venue": "Houston, Texas", "tvUs": "FOX, Telemundo, FOX One", "tvUk": "ITV1"}, {"utc": "2026-06-29T20:30:00+00:00", "tag": "Round of 32", "home": "Germany", "away": "Paraguay", "homeScore": 0, "awayScore": 0, "homePen": null, "awayPen": null, "completed": false, "state": "pre", "venue": "Foxborough, Massachusetts", "tvUs": "FOX, Telemundo, FOX One", "tvUk": "BBC One"}, {"utc": "2026-06-30T01:00:00+00:00", "tag": "Round of 32", "home": "Netherlands", "away": "Morocco", "homeScore": 0, "awayScore": 0, "homePen": null, "awayPen": null, "completed": false, "state": "pre", "venue": "Guadalupe", "tvUs": "FOX, Telemundo, FOX One", "tvUk": "ITV1"}, {"utc": "2026-06-30T17:00:00+00:00", "tag": "Round of 32", "home": "Ivory Coast", "away": "Norway", "homeScore": 0, "awayScore": 0, "homePen": null, "awayPen": null, "completed": false, "state": "pre", "venue": "Arlington, Texas", "tvUs": "FOX, Telemundo, FOX One", "tvUk": "BBC One"}, {"utc": "2026-06-30T21:00:00+00:00", "tag": "Round of 32", "home": "France", "away": "Sweden", "homeScore": 0, "awayScore": 0, "homePen": null, "awayPen": null, "completed": false, "state": "pre", "venue": "East Rutherford, New Jersey", "tvUs": "FOX, Telemundo, FOX One", "tvUk": "ITV1"}, {"utc": "2026-07-01T01:00:00+00:00", "tag": "Round of 32", "home": "Mexico", "away": "Ecuador", "homeScore": 0, "awayScore": 0, "homePen": null, "awayPen": null, "completed": false, "state": "pre", "venue": "Mexico City", "tvUs": "FOX, Telemundo, FOX One", "tvUk": "ITV1"}, {"utc": "2026-07-01T16:00:00+00:00", "tag": "Round of 32", "home": "England", "away": "Congo DR", "homeScore": 0, "awayScore": 0, "homePen": null, "awayPen": null, "completed": false, "state": "pre", "venue": "Atlanta, Georgia", "tvUs": "FOX, Telemundo, FOX One", "tvUk": "BBC One"}, {"utc": "2026-07-01T20:00:00+00:00", "tag": "Round of 32", "home": "Belgium", "away": "Senegal", "homeScore": 0, "awayScore": 0, "homePen": null, "awayPen": null, "completed": false, "state": "pre", "venue": "Seattle, Washington", "tvUs": "FS1, Telemundo, FOX One", "tvUk": "ITV1"}, {"utc": "2026-07-02T00:00:00+00:00", "tag": "Round of 32", "home": "United States", "away": "Bosnia-Herzegovina", "homeScore": 0, "awayScore": 0, "homePen": null, "awayPen": null, "completed": false, "state": "pre", "venue": "Santa Clara, California", "tvUs": "FOX, Telemundo, FOX One", "tvUk": "BBC One"}, {"utc": "2026-07-02T19:00:00+00:00", "tag": "Round of 32", "home": "Spain", "away": "Austria", "homeScore": 0, "awayScore": 0, "homePen": null, "awayPen": null, "completed": false, "state": "pre", "venue": "Inglewood, California", "tvUs": "FOX, Telemundo, FOX One", "tvUk": "BBC One"}, {"utc": "2026-07-02T23:00:00+00:00", "tag": "Round of 32", "home": "Portugal", "away": "Croatia", "homeScore": 0, "awayScore": 0, "homePen": null, "awayPen": null, "completed": false, "state": "pre", "venue": "Toronto", "tvUs": "FOX, Telemundo, FOX One", "tvUk": "BBC One"}, {"utc": "2026-07-03T03:00:00+00:00", "tag": "Round of 32", "home": "Switzerland", "away": "Algeria", "homeScore": 0, "awayScore": 0, "homePen": null, "awayPen": null, "completed": false, "state": "pre", "venue": "Vancouver", "tvUs": "FS1, Telemundo, FOX One", "tvUk": "BBC One"}, {"utc": "2026-07-03T18:00:00+00:00", "tag": "Round of 32", "home": "Australia", "away": "Egypt", "homeScore": 0, "awayScore": 0, "homePen": null, "awayPen": null, "completed": false, "state": "pre", "venue": "Arlington, Texas", "tvUs": "FOX, Telemundo, FOX One", "tvUk": "BBC One"}, {"utc": "2026-07-03T22:00:00+00:00", "tag": "Round of 32", "home": "Argentina", "away": "Cape Verde", "homeScore": 0, "awayScore": 0, "homePen": null, "awayPen": null, "completed": false, "state": "pre", "venue": "Miami Gardens, Florida", "tvUs": "FOX, Telemundo, FOX One", "tvUk": "ITV1"}];
 
 // ---- Local-timezone formatting ----
 function fmtLocalDate(iso) {
@@ -392,14 +404,14 @@ function renderBracket() {
   }
 }
 
-// On touch devices (no hover), tap a tie to reveal its time/location/TV popover.
+// On touch devices (no hover), tap a tie or fixture to reveal its
+// time/location/TV popover.
 if (window.matchMedia("(hover: none)").matches) {
   document.addEventListener("click", e => {
-    const tie = e.target.closest(".tie");
-    const openTies = document.querySelectorAll(".tie.meta-open");
-    const wasOpen = tie && tie.classList.contains("meta-open");
-    openTies.forEach(t => { if (t !== tie) t.classList.remove("meta-open"); });
-    if (tie) tie.classList.toggle("meta-open", !wasOpen);
+    const item = e.target.closest(".tie, .fixture");
+    const wasOpen = item && item.classList.contains("meta-open");
+    document.querySelectorAll(".meta-open").forEach(t => { if (t !== item) t.classList.remove("meta-open"); });
+    if (item) item.classList.toggle("meta-open", !wasOpen);
   });
 }
 
@@ -424,23 +436,29 @@ groups.forEach(g => {
 
 // ---- Fixtures: group into Today / Tomorrow / Upcoming (viewer's local date) ----
 function _esc(s) { return String(s == null ? "" : s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function _fixtureMeta(f, lead) {
+  const tv = [];
+  if (f.tvUs) tv.push(`<span class="tm-tv"><b>US</b> ${_esc(f.tvUs)}</span>`);
+  if (f.tvUk) tv.push(`<span class="tm-tv"><b>UK</b> ${_esc(f.tvUk)}</span>`);
+  return `<div class="fixture-meta">${lead} · ${_esc(f.venue)}${tv.join("")}</div>`;
+}
 function _renderFixtureCard(f) {
   const tag = _esc(f.tag);
   if (f.completed) {
     let pens = "";
     if (f.homePen != null && f.awayPen != null) pens = ` (p ${f.homePen}–${f.awayPen})`;
-    return `<div class="fixture"><div class="grp">${tag} — Final</div>`
+    return `<div class="fixture"><span class="fx-info">ⓘ</span><div class="grp">${tag} — Final</div>`
       + `<div class="teams">${_esc(f.home)} ${_esc(f.homeScore)}–${_esc(f.awayScore)}${pens} ${_esc(f.away)}</div>`
-      + `<div class="time">Full-time — ${_esc(f.venue)}</div></div>`;
+      + _fixtureMeta(f, "Full-time") + `</div>`;
   }
   if (f.state === "in") {
-    return `<div class="fixture live"><div class="grp">${tag}</div>`
+    return `<div class="fixture live"><span class="fx-info">ⓘ</span><div class="grp">${tag}</div>`
       + `<div class="teams"><span class="live-dot"></span>${_esc(f.home)} vs ${_esc(f.away)}</div>`
-      + `<div class="time">Live — ${_esc(f.venue)}</div></div>`;
+      + _fixtureMeta(f, "Live now") + `</div>`;
   }
-  return `<div class="fixture"><div class="grp">${tag}</div>`
+  return `<div class="fixture"><span class="fx-info">ⓘ</span><div class="grp">${tag}</div>`
     + `<div class="teams">${_esc(f.home)} vs ${_esc(f.away)}</div>`
-    + `<div class="time">${fmtLocalDateTime(f.utc)} — ${_esc(f.venue)}</div></div>`;
+    + _fixtureMeta(f, fmtLocalDateTime(f.utc)) + `</div>`;
 }
 (function renderFixturePanes() {
   const now = new Date();

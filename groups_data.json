@@ -1,69 +1,535 @@
 {
   "groups": {
-    "A": ["Mexico", "South Africa", "South Korea", "Czechia"],
-    "B": ["Switzerland", "Canada", "Bosnia-Herzegovina", "Qatar"],
-    "C": ["Brazil", "Morocco", "Scotland", "Haiti"],
-    "D": ["United States", "Australia", "Paraguay", "Türkiye"],
-    "E": ["Germany", "Ivory Coast", "Ecuador", "Curaçao"],
-    "F": ["Netherlands", "Japan", "Sweden", "Tunisia"],
-    "G": ["Egypt", "Iran", "Belgium", "New Zealand"],
-    "H": ["Spain", "Uruguay", "Cape Verde", "Saudi Arabia"],
-    "I": ["France", "Norway", "Senegal", "Iraq"],
-    "J": ["Argentina", "Austria", "Algeria", "Jordan"],
-    "K": ["Colombia", "Portugal", "Congo DR", "Uzbekistan"],
-    "L": ["England", "Ghana", "Croatia", "Panama"]
+    "A": [
+      "Mexico",
+      "South Africa",
+      "South Korea",
+      "Czechia"
+    ],
+    "B": [
+      "Switzerland",
+      "Canada",
+      "Bosnia-Herzegovina",
+      "Qatar"
+    ],
+    "C": [
+      "Brazil",
+      "Morocco",
+      "Scotland",
+      "Haiti"
+    ],
+    "D": [
+      "United States",
+      "Australia",
+      "Paraguay",
+      "Türkiye"
+    ],
+    "E": [
+      "Germany",
+      "Ivory Coast",
+      "Ecuador",
+      "Curaçao"
+    ],
+    "F": [
+      "Netherlands",
+      "Japan",
+      "Sweden",
+      "Tunisia"
+    ],
+    "G": [
+      "Egypt",
+      "Iran",
+      "Belgium",
+      "New Zealand"
+    ],
+    "H": [
+      "Spain",
+      "Uruguay",
+      "Cape Verde",
+      "Saudi Arabia"
+    ],
+    "I": [
+      "France",
+      "Norway",
+      "Senegal",
+      "Iraq"
+    ],
+    "J": [
+      "Argentina",
+      "Austria",
+      "Algeria",
+      "Jordan"
+    ],
+    "K": [
+      "Colombia",
+      "Portugal",
+      "Congo DR",
+      "Uzbekistan"
+    ],
+    "L": [
+      "England",
+      "Ghana",
+      "Croatia",
+      "Panama"
+    ]
   },
   "flags": {
-    "Mexico": "🇲🇽", "South Africa": "🇿🇦", "South Korea": "🇰🇷", "Czechia": "🇨🇿",
-    "Switzerland": "🇨🇭", "Canada": "🇨🇦", "Bosnia-Herzegovina": "🇧🇦", "Qatar": "🇶🇦",
-    "Brazil": "🇧🇷", "Morocco": "🇲🇦", "Scotland": "🏴󠁧󠁢󠁳󠁣󠁴󠁿", "Haiti": "🇭🇹",
-    "United States": "🇺🇸", "Australia": "🇦🇺", "Paraguay": "🇵🇾", "Türkiye": "🇹🇷",
-    "Germany": "🇩🇪", "Ivory Coast": "🇨🇮", "Ecuador": "🇪🇨", "Curaçao": "🇨🇼",
-    "Netherlands": "🇳🇱", "Japan": "🇯🇵", "Sweden": "🇸🇪", "Tunisia": "🇹🇳",
-    "Egypt": "🇪🇬", "Iran": "🇮🇷", "Belgium": "🇧🇪", "New Zealand": "🇳🇿",
-    "Spain": "🇪🇸", "Uruguay": "🇺🇾", "Cape Verde": "🇨🇻", "Saudi Arabia": "🇸🇦",
-    "France": "🇫🇷", "Norway": "🇳🇴", "Senegal": "🇸🇳", "Iraq": "🇮🇶",
-    "Argentina": "🇦🇷", "Austria": "🇦🇹", "Algeria": "🇩🇿", "Jordan": "🇯🇴",
-    "Colombia": "🇨🇴", "Portugal": "🇵🇹", "Congo DR": "🇨🇩", "Uzbekistan": "🇺🇿",
-    "England": "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "Ghana": "🇬🇭", "Croatia": "🇭🇷", "Panama": "🇵🇦"
+    "Mexico": "🇲🇽",
+    "South Africa": "🇿🇦",
+    "South Korea": "🇰🇷",
+    "Czechia": "🇨🇿",
+    "Switzerland": "🇨🇭",
+    "Canada": "🇨🇦",
+    "Bosnia-Herzegovina": "🇧🇦",
+    "Qatar": "🇶🇦",
+    "Brazil": "🇧🇷",
+    "Morocco": "🇲🇦",
+    "Scotland": "🏴󠁧󠁢󠁳󠁣󠁴󠁿",
+    "Haiti": "🇭🇹",
+    "United States": "🇺🇸",
+    "Australia": "🇦🇺",
+    "Paraguay": "🇵🇾",
+    "Türkiye": "🇹🇷",
+    "Germany": "🇩🇪",
+    "Ivory Coast": "🇨🇮",
+    "Ecuador": "🇪🇨",
+    "Curaçao": "🇨🇼",
+    "Netherlands": "🇳🇱",
+    "Japan": "🇯🇵",
+    "Sweden": "🇸🇪",
+    "Tunisia": "🇹🇳",
+    "Egypt": "🇪🇬",
+    "Iran": "🇮🇷",
+    "Belgium": "🇧🇪",
+    "New Zealand": "🇳🇿",
+    "Spain": "🇪🇸",
+    "Uruguay": "🇺🇾",
+    "Cape Verde": "🇨🇻",
+    "Saudi Arabia": "🇸🇦",
+    "France": "🇫🇷",
+    "Norway": "🇳🇴",
+    "Senegal": "🇸🇳",
+    "Iraq": "🇮🇶",
+    "Argentina": "🇦🇷",
+    "Austria": "🇦🇹",
+    "Algeria": "🇩🇿",
+    "Jordan": "🇯🇴",
+    "Colombia": "🇨🇴",
+    "Portugal": "🇵🇹",
+    "Congo DR": "🇨🇩",
+    "Uzbekistan": "🇺🇿",
+    "England": "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
+    "Ghana": "🇬🇭",
+    "Croatia": "🇭🇷",
+    "Panama": "🇵🇦"
   },
   "_bracket_note": "Single-elimination bracket for WC2026. Match ids and feeder topology follow the official FIFA schedule (Wikipedia: 2026 FIFA World Cup knockout stage). Teams/scores are filled at refresh time from ESPN by matching the known seed in each tie; third-place slots resolve automatically once ESPN seeds the Round of 32. Edit dates/cities/feeders here if the official schedule changes. Add \"tv_uk\": \"BBC One\" (etc.) to a match to pin its UK channel; otherwise it shows \"BBC/ITV (TBC)\". US channels come automatically from the ESPN feed.",
   "bracket": [
-    { "id": 73, "round": "R32", "date": "2026-06-28", "city": "Inglewood",      "a": {"seed": "2A"}, "b": {"seed": "2B"} },
-    { "id": 74, "round": "R32", "date": "2026-06-29", "city": "Foxborough",     "a": {"seed": "1E"}, "b": {"third": "A/B/C/D/F"} },
-    { "id": 75, "round": "R32", "date": "2026-06-29", "city": "Guadalupe",      "a": {"seed": "1F"}, "b": {"seed": "2C"} },
-    { "id": 76, "round": "R32", "date": "2026-06-29", "city": "Houston",        "a": {"seed": "1C"}, "b": {"seed": "2F"} },
-    { "id": 77, "round": "R32", "date": "2026-06-30", "city": "Arlington",      "a": {"seed": "1I"}, "b": {"third": "C/D/F/G/H"} },
-    { "id": 78, "round": "R32", "date": "2026-06-30", "city": "East Rutherford","a": {"seed": "2E"}, "b": {"seed": "2I"} },
-    { "id": 79, "round": "R32", "date": "2026-06-30", "city": "Mexico City",    "a": {"seed": "1A"}, "b": {"third": "C/E/F/H/I"} },
-    { "id": 80, "round": "R32", "date": "2026-07-01", "city": "Atlanta",        "a": {"seed": "1L"}, "b": {"third": "E/H/I/J/K"} },
-    { "id": 81, "round": "R32", "date": "2026-07-01", "city": "Santa Clara",    "a": {"seed": "1D"}, "b": {"third": "B/E/F/I/J"} },
-    { "id": 82, "round": "R32", "date": "2026-07-01", "city": "Seattle",        "a": {"seed": "1G"}, "b": {"third": "A/E/H/I/J"} },
-    { "id": 83, "round": "R32", "date": "2026-07-02", "city": "Toronto",        "a": {"seed": "2K"}, "b": {"seed": "2L"} },
-    { "id": 84, "round": "R32", "date": "2026-07-02", "city": "Inglewood",      "a": {"seed": "1H"}, "b": {"seed": "2J"} },
-    { "id": 85, "round": "R32", "date": "2026-07-02", "city": "Vancouver",      "a": {"seed": "1B"}, "b": {"third": "E/F/G/I/J"} },
-    { "id": 86, "round": "R32", "date": "2026-07-03", "city": "Miami Gardens",  "a": {"seed": "1J"}, "b": {"seed": "2H"} },
-    { "id": 87, "round": "R32", "date": "2026-07-03", "city": "Kansas City",    "a": {"seed": "1K"}, "b": {"third": "D/E/I/J/L"} },
-    { "id": 88, "round": "R32", "date": "2026-07-03", "city": "Arlington",      "a": {"seed": "2D"}, "b": {"seed": "2G"} },
-
-    { "id": 89, "round": "R16", "date": "2026-07-04", "city": "Philadelphia",   "a": {"from": 74}, "b": {"from": 77} },
-    { "id": 90, "round": "R16", "date": "2026-07-04", "city": "Houston",        "a": {"from": 73}, "b": {"from": 75} },
-    { "id": 91, "round": "R16", "date": "2026-07-05", "city": "East Rutherford","a": {"from": 76}, "b": {"from": 78} },
-    { "id": 92, "round": "R16", "date": "2026-07-05", "city": "Mexico City",    "a": {"from": 79}, "b": {"from": 80} },
-    { "id": 93, "round": "R16", "date": "2026-07-06", "city": "Arlington",      "a": {"from": 83}, "b": {"from": 84} },
-    { "id": 94, "round": "R16", "date": "2026-07-06", "city": "Seattle",        "a": {"from": 81}, "b": {"from": 82} },
-    { "id": 95, "round": "R16", "date": "2026-07-07", "city": "Atlanta",        "a": {"from": 86}, "b": {"from": 88} },
-    { "id": 96, "round": "R16", "date": "2026-07-07", "city": "Vancouver",      "a": {"from": 85}, "b": {"from": 87} },
-
-    { "id": 97,  "round": "QF", "date": "2026-07-09", "city": "Foxborough",     "a": {"from": 89}, "b": {"from": 90} },
-    { "id": 98,  "round": "QF", "date": "2026-07-10", "city": "Inglewood",      "a": {"from": 93}, "b": {"from": 94} },
-    { "id": 99,  "round": "QF", "date": "2026-07-11", "city": "Miami Gardens",  "a": {"from": 91}, "b": {"from": 92} },
-    { "id": 100, "round": "QF", "date": "2026-07-11", "city": "Kansas City",    "a": {"from": 95}, "b": {"from": 96} },
-
-    { "id": 101, "round": "SF", "date": "2026-07-14", "city": "Arlington",      "a": {"from": 97}, "b": {"from": 98} },
-    { "id": 102, "round": "SF", "date": "2026-07-15", "city": "Atlanta",        "a": {"from": 99}, "b": {"from": 100} },
-
-    { "id": 103, "round": "3P", "date": "2026-07-18", "city": "Miami Gardens",  "a": {"loser": 101}, "b": {"loser": 102} },
-    { "id": 104, "round": "F",  "date": "2026-07-19", "city": "East Rutherford","a": {"from": 101}, "b": {"from": 102} }
-  ]
+    {
+      "id": 73,
+      "round": "R32",
+      "date": "2026-06-28",
+      "city": "Inglewood",
+      "a": {
+        "seed": "2A"
+      },
+      "b": {
+        "seed": "2B"
+      },
+      "tv_uk": "ITV1"
+    },
+    {
+      "id": 74,
+      "round": "R32",
+      "date": "2026-06-29",
+      "city": "Foxborough",
+      "a": {
+        "seed": "1E"
+      },
+      "b": {
+        "third": "A/B/C/D/F"
+      },
+      "tv_uk": "BBC One"
+    },
+    {
+      "id": 75,
+      "round": "R32",
+      "date": "2026-06-29",
+      "city": "Guadalupe",
+      "a": {
+        "seed": "1F"
+      },
+      "b": {
+        "seed": "2C"
+      },
+      "tv_uk": "ITV1"
+    },
+    {
+      "id": 76,
+      "round": "R32",
+      "date": "2026-06-29",
+      "city": "Houston",
+      "a": {
+        "seed": "1C"
+      },
+      "b": {
+        "seed": "2F"
+      },
+      "tv_uk": "ITV1"
+    },
+    {
+      "id": 77,
+      "round": "R32",
+      "date": "2026-06-30",
+      "city": "Arlington",
+      "a": {
+        "seed": "1I"
+      },
+      "b": {
+        "third": "C/D/F/G/H"
+      },
+      "tv_uk": "ITV1"
+    },
+    {
+      "id": 78,
+      "round": "R32",
+      "date": "2026-06-30",
+      "city": "East Rutherford",
+      "a": {
+        "seed": "2E"
+      },
+      "b": {
+        "seed": "2I"
+      },
+      "tv_uk": "BBC One"
+    },
+    {
+      "id": 79,
+      "round": "R32",
+      "date": "2026-06-30",
+      "city": "Mexico City",
+      "a": {
+        "seed": "1A"
+      },
+      "b": {
+        "third": "C/E/F/H/I"
+      },
+      "tv_uk": "ITV1"
+    },
+    {
+      "id": 80,
+      "round": "R32",
+      "date": "2026-07-01",
+      "city": "Atlanta",
+      "a": {
+        "seed": "1L"
+      },
+      "b": {
+        "third": "E/H/I/J/K"
+      },
+      "tv_uk": "BBC One"
+    },
+    {
+      "id": 81,
+      "round": "R32",
+      "date": "2026-07-01",
+      "city": "Santa Clara",
+      "a": {
+        "seed": "1D"
+      },
+      "b": {
+        "third": "B/E/F/I/J"
+      },
+      "tv_uk": "BBC One"
+    },
+    {
+      "id": 82,
+      "round": "R32",
+      "date": "2026-07-01",
+      "city": "Seattle",
+      "a": {
+        "seed": "1G"
+      },
+      "b": {
+        "third": "A/E/H/I/J"
+      },
+      "tv_uk": "ITV1"
+    },
+    {
+      "id": 83,
+      "round": "R32",
+      "date": "2026-07-02",
+      "city": "Toronto",
+      "a": {
+        "seed": "2K"
+      },
+      "b": {
+        "seed": "2L"
+      },
+      "tv_uk": "BBC One"
+    },
+    {
+      "id": 84,
+      "round": "R32",
+      "date": "2026-07-02",
+      "city": "Inglewood",
+      "a": {
+        "seed": "1H"
+      },
+      "b": {
+        "seed": "2J"
+      },
+      "tv_uk": "BBC One"
+    },
+    {
+      "id": 85,
+      "round": "R32",
+      "date": "2026-07-02",
+      "city": "Vancouver",
+      "a": {
+        "seed": "1B"
+      },
+      "b": {
+        "third": "E/F/G/I/J"
+      },
+      "tv_uk": "BBC One"
+    },
+    {
+      "id": 86,
+      "round": "R32",
+      "date": "2026-07-03",
+      "city": "Miami Gardens",
+      "a": {
+        "seed": "1J"
+      },
+      "b": {
+        "seed": "2H"
+      },
+      "tv_uk": "ITV1"
+    },
+    {
+      "id": 87,
+      "round": "R32",
+      "date": "2026-07-03",
+      "city": "Kansas City",
+      "a": {
+        "seed": "1K"
+      },
+      "b": {
+        "third": "D/E/I/J/L"
+      },
+      "tv_uk": "ITV1"
+    },
+    {
+      "id": 88,
+      "round": "R32",
+      "date": "2026-07-03",
+      "city": "Arlington",
+      "a": {
+        "seed": "2D"
+      },
+      "b": {
+        "seed": "2G"
+      },
+      "tv_uk": "BBC One"
+    },
+    {
+      "id": 89,
+      "round": "R16",
+      "date": "2026-07-04",
+      "city": "Philadelphia",
+      "a": {
+        "from": 74
+      },
+      "b": {
+        "from": 77
+      }
+    },
+    {
+      "id": 90,
+      "round": "R16",
+      "date": "2026-07-04",
+      "city": "Houston",
+      "a": {
+        "from": 73
+      },
+      "b": {
+        "from": 75
+      }
+    },
+    {
+      "id": 91,
+      "round": "R16",
+      "date": "2026-07-05",
+      "city": "East Rutherford",
+      "a": {
+        "from": 76
+      },
+      "b": {
+        "from": 78
+      }
+    },
+    {
+      "id": 92,
+      "round": "R16",
+      "date": "2026-07-05",
+      "city": "Mexico City",
+      "a": {
+        "from": 79
+      },
+      "b": {
+        "from": 80
+      }
+    },
+    {
+      "id": 93,
+      "round": "R16",
+      "date": "2026-07-06",
+      "city": "Arlington",
+      "a": {
+        "from": 83
+      },
+      "b": {
+        "from": 84
+      }
+    },
+    {
+      "id": 94,
+      "round": "R16",
+      "date": "2026-07-06",
+      "city": "Seattle",
+      "a": {
+        "from": 81
+      },
+      "b": {
+        "from": 82
+      }
+    },
+    {
+      "id": 95,
+      "round": "R16",
+      "date": "2026-07-07",
+      "city": "Atlanta",
+      "a": {
+        "from": 86
+      },
+      "b": {
+        "from": 88
+      }
+    },
+    {
+      "id": 96,
+      "round": "R16",
+      "date": "2026-07-07",
+      "city": "Vancouver",
+      "a": {
+        "from": 85
+      },
+      "b": {
+        "from": 87
+      }
+    },
+    {
+      "id": 97,
+      "round": "QF",
+      "date": "2026-07-09",
+      "city": "Foxborough",
+      "a": {
+        "from": 89
+      },
+      "b": {
+        "from": 90
+      }
+    },
+    {
+      "id": 98,
+      "round": "QF",
+      "date": "2026-07-10",
+      "city": "Inglewood",
+      "a": {
+        "from": 93
+      },
+      "b": {
+        "from": 94
+      }
+    },
+    {
+      "id": 99,
+      "round": "QF",
+      "date": "2026-07-11",
+      "city": "Miami Gardens",
+      "a": {
+        "from": 91
+      },
+      "b": {
+        "from": 92
+      }
+    },
+    {
+      "id": 100,
+      "round": "QF",
+      "date": "2026-07-11",
+      "city": "Kansas City",
+      "a": {
+        "from": 95
+      },
+      "b": {
+        "from": 96
+      }
+    },
+    {
+      "id": 101,
+      "round": "SF",
+      "date": "2026-07-14",
+      "city": "Arlington",
+      "a": {
+        "from": 97
+      },
+      "b": {
+        "from": 98
+      }
+    },
+    {
+      "id": 102,
+      "round": "SF",
+      "date": "2026-07-15",
+      "city": "Atlanta",
+      "a": {
+        "from": 99
+      },
+      "b": {
+        "from": 100
+      }
+    },
+    {
+      "id": 103,
+      "round": "3P",
+      "date": "2026-07-18",
+      "city": "Miami Gardens",
+      "a": {
+        "loser": 101
+      },
+      "b": {
+        "loser": 102
+      }
+    },
+    {
+      "id": 104,
+      "round": "F",
+      "date": "2026-07-19",
+      "city": "East Rutherford",
+      "a": {
+        "from": 101
+      },
+      "b": {
+        "from": 102
+      }
+    }
+  ],
+  "tv_uk_extra": {
+    "Colombia|Portugal": "BBC One",
+    "Congo DR|Uzbekistan": "BBC Two",
+    "Argentina|Jordan": "BBC One",
+    "Algeria|Austria": "BBC Two"
+  }
 }
