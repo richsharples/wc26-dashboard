@@ -104,6 +104,71 @@
   .fav-card .fc-games-empty { margin-top: 10px; font-size: 12px; opacity: .8; }
   .fav-card .note { margin-top: 10px; font-size: 12px; opacity: .8; }
 
+  /* ---- 3D conical bracket ---- */
+  .view-bar {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    border-bottom: 2px solid #e2e5ea; padding-bottom: 6px; margin-bottom: 12px;
+  }
+  .view-bar h2 { border: 0; margin: 0; padding: 0; }
+  .view-toggle { display: flex; gap: 4px; background: #e9ebef; border-radius: 8px; padding: 3px; }
+  .view-toggle button {
+    font-size: 12px; font-weight: 600; padding: 4px 12px; border: 0; border-radius: 6px;
+    background: transparent; color: #5a6172; cursor: pointer;
+  }
+  .view-toggle button[aria-pressed="true"] { background: #fff; color: #1a1d23; box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+  #cone-view {
+    position: relative; height: 660px; overflow: hidden;
+    border: 1px solid #e2e5ea; border-radius: 12px;
+    background: radial-gradient(ellipse at 50% 115%, #e8ecf2, #f9fafb 72%);
+    perspective: 1300px; touch-action: pan-y; cursor: grab;
+    user-select: none; -webkit-user-select: none;
+  }
+  #cone-view.dragging { cursor: grabbing; }
+  #cone-scale, #cone-tilt, #cone-spin {
+    position: absolute; width: 0; height: 0;
+    transform-style: preserve-3d; -webkit-transform-style: preserve-3d;
+  }
+  #cone-scale { left: 50%; top: 45%; }
+  #cone-tilt { transform: rotateX(-12deg); }
+  #cone-spin { transform: rotateY(var(--spin, 0deg)); }
+  .cone-ring {
+    position: absolute; border: 1.5px dashed #c9d0da; border-radius: 50%;
+    pointer-events: none;
+  }
+  .cone-card {
+    position: absolute; left: -70px; top: -22px; width: 140px;
+    background: #fff; border: 1px solid #dfe3e9; border-radius: 8px;
+    box-shadow: 0 6px 14px rgba(20,30,50,.10);
+    backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  }
+  .cone-card .side { padding: 3px 8px; font-size: 11px; }
+  .cone-card .rtag {
+    position: absolute; top: -8px; left: 8px; font-size: 8.5px; font-weight: 700;
+    letter-spacing: .05em; text-transform: uppercase;
+    background: #5a6172; color: #fff; border-radius: 4px; padding: 1px 5px;
+  }
+  .cone-card.live { border-color: #d23; }
+  .cone-card.live .rtag { background: #d23; }
+  .cone-card.fav { border-color: #c79200; box-shadow: 0 0 0 2px rgba(199,146,0,.18), 0 6px 14px rgba(20,30,50,.10); }
+  .cone-champ {
+    position: absolute; left: -110px; width: 220px; text-align: center;
+    font-size: 16px; font-weight: 800; color: #1a1d23;
+    backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  }
+  .cone-champ .cc-sub { font-size: 10px; font-weight: 600; color: #5a6172; text-transform: uppercase; letter-spacing: .05em; margin-top: 2px; }
+  .cone-legend {
+    position: absolute; left: 14px; top: 14px; z-index: 2; pointer-events: none;
+    font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em;
+    color: #97a0ad; display: flex; flex-direction: column; gap: 26px;
+  }
+  .cone-hint {
+    position: absolute; right: 14px; bottom: 10px; z-index: 2; pointer-events: none;
+    font-size: 11px; color: #97a0ad;
+  }
+  @media (max-width: 640px) {
+    .cone-legend { display: none; }
+  }
+
   /* ---- Bracket ---- */
   .bracket-scroll { overflow-x: auto; padding-bottom: 6px; }
   .bracket { display: flex; align-items: stretch; min-width: 1060px; }
@@ -243,10 +308,23 @@
 </section>
 
 <section>
-  <h2 class="bare">Knockout Bracket</h2>
+  <div class="view-bar">
+    <h2 class="bare">Knockout Bracket</h2>
+    <div class="view-toggle" id="view-toggle" role="group" aria-label="Bracket view">
+      <button type="button" data-view="cone" aria-pressed="true">3D cone</button>
+      <button type="button" data-view="flat" aria-pressed="false">Flat</button>
+    </div>
+  </div>
+  <div id="cone-view">
+    <div class="cone-legend" aria-hidden="true">
+      <span>Final</span><span>Semi-finals</span><span>Quarter-finals</span><span>Round of 16</span><span>Round of 32</span>
+    </div>
+    <div class="cone-hint">drag to spin</div>
+    <div id="cone-scale"><div id="cone-tilt"><div id="cone-spin"></div></div></div>
+  </div>
   <div class="bracket-scroll"><div class="bracket" id="bracket"></div></div>
   <div class="thirdplace" id="thirdplace"></div>
-  <div class="caveat">Ties fill in from ESPN as each round is played — later rounds show "Winner M##" until their feeder matches finish. Your favorites are highlighted in gold.</div>
+  <div class="caveat">Ties fill in from ESPN as each round is played — later rounds show "Winner M##" until their feeder matches finish. Your favorites are highlighted in gold. The flat view has match times, TV channels and the third-place play-off.</div>
 </section>
 
 <details class="panel" open>
@@ -402,7 +480,107 @@ function renderBracket() {
     document.getElementById("thirdplace").innerHTML =
       `<div class="round-title">Third-place play-off</div>` + tieHTML(tp);
   }
+  renderCone();
 }
+
+// ---- 3D conical bracket view ----
+// Knockout rounds ride concentric rings on a cone: Round of 32 around the
+// base, the final at the apex. Cards face outward, so the far side hides
+// itself via backface culling; the final and champion counter-rotate against
+// the stage spin so they always face the viewer.
+const coneViewEl = document.getElementById("cone-view");
+const coneSpinEl = document.getElementById("cone-spin");
+const coneScaleEl = document.getElementById("cone-scale");
+const CONE_RINGS = { R32:{r:430,y:180}, R16:{r:330,y:80}, QF:{r:238,y:-18}, SF:{r:150,y:-112}, F:{r:0,y:-198} };
+
+function coneCardHTML(n, angle, ring) {
+  const cls = ["cone-card"];
+  if (favSet.has(n.a.name) || favSet.has(n.b.name)) cls.push("fav");
+  if (n.state === "in") cls.push("live");
+  const tf = n.round === "F"
+    ? `translateY(${ring.y}px) rotateY(calc(var(--spin, 0deg) * -1))`
+    : `rotateY(${angle}deg) translateZ(${ring.r}px) translateY(${ring.y}px) rotateX(9deg)`;
+  return `<div class="${cls.join(" ")}" style="transform:${tf}">
+    <span class="rtag">${n.round === "F" ? "Final" : n.round}</span>
+    ${sideHTML(n,"a")}${sideHTML(n,"b")}</div>`;
+}
+
+function renderCone() {
+  if (!coneSpinEl) return;
+  const parts = [];
+  for (const [key, ring] of Object.entries(CONE_RINGS)) {
+    if (ring.r > 0) {
+      parts.push(`<div class="cone-ring" style="width:${ring.r*2}px;height:${ring.r*2}px;left:${-ring.r}px;top:${-ring.r}px;transform:translateY(${ring.y}px) rotateX(90deg)"></div>`);
+    }
+    const ties = bracket.filter(n => n.round === key).sort((a,b) => a.id - b.id);
+    ties.forEach((n, i) => parts.push(coneCardHTML(n, (i + 0.5) * 360 / ties.length, ring)));
+  }
+  const fNode = bracket.find(n => n.round === "F");
+  const champ = fNode && fNode.winner && fNode.state === "post" ? fNode[fNode.winner].name : null;
+  parts.push(`<div class="cone-champ" style="transform:translateY(-282px) rotateY(calc(var(--spin, 0deg) * -1))">🏆${champ ? " " + champ : ""}<div class="cc-sub">${champ ? "World champions" : "Champion"}</div></div>`);
+  coneSpinEl.innerHTML = parts.join("");
+}
+
+// View toggle (persisted per browser).
+const VIEW_KEY = "wc26-bracket-view";
+let viewMode = (function () { try { return localStorage.getItem(VIEW_KEY) || "cone"; } catch (e) { return "cone"; } })();
+function applyView() {
+  const cone = viewMode === "cone";
+  coneViewEl.style.display = cone ? "" : "none";
+  document.querySelector(".bracket-scroll").style.display = cone ? "none" : "";
+  document.getElementById("thirdplace").style.display = cone ? "none" : "";
+  document.querySelectorAll("#view-toggle button").forEach(b =>
+    b.setAttribute("aria-pressed", String(b.dataset.view === viewMode)));
+}
+document.querySelectorAll("#view-toggle button").forEach(b => b.addEventListener("click", () => {
+  viewMode = b.dataset.view;
+  try { localStorage.setItem(VIEW_KEY, viewMode); } catch (e) {}
+  applyView();
+}));
+applyView();
+
+// Drag to spin; slow auto-rotation otherwise (paused on hover and for
+// reduced-motion visitors).
+let coneSpin = 70, coneDragging = false, coneHover = false, coneLastX = 0;
+const coneAuto = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+function coneApply() { coneSpinEl.style.setProperty("--spin", coneSpin + "deg"); }
+coneViewEl.addEventListener("pointerdown", e => {
+  coneDragging = true; coneLastX = e.clientX;
+  coneViewEl.classList.add("dragging");
+  coneViewEl.setPointerCapture(e.pointerId);
+});
+coneViewEl.addEventListener("pointermove", e => {
+  if (!coneDragging) return;
+  coneSpin += (e.clientX - coneLastX) * 0.35;
+  coneLastX = e.clientX;
+  coneApply();
+});
+["pointerup", "pointercancel"].forEach(ev => coneViewEl.addEventListener(ev, () => {
+  coneDragging = false;
+  coneViewEl.classList.remove("dragging");
+}));
+if (window.matchMedia("(hover: hover)").matches) {
+  coneViewEl.addEventListener("pointerenter", () => { coneHover = true; });
+  coneViewEl.addEventListener("pointerleave", () => { coneHover = false; });
+}
+(function coneTick() {
+  if (coneAuto && !coneDragging && !coneHover && viewMode === "cone") {
+    coneSpin += 0.05;
+    coneApply();
+  }
+  requestAnimationFrame(coneTick);
+})();
+coneApply();
+
+// Shrink the whole cone on narrow screens.
+function coneResize() {
+  // Never shrink below .48 — readable cards beat fitting the whole ring.
+  const s = Math.min(1, Math.max(0.48, coneViewEl.clientWidth / 980));
+  coneScaleEl.style.transform = s < 1 ? `scale(${s})` : "";
+  coneViewEl.style.height = Math.round(660 * Math.max(s, 0.62)) + "px";
+}
+window.addEventListener("resize", coneResize);
+coneResize();
 
 // On touch devices (no hover), tap a tie or fixture to reveal its
 // time/location/TV popover.
