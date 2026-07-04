@@ -172,6 +172,14 @@
   .cone-card.live { border-color: #d23; }
   .cone-card.live .rtag { background: #d23; }
   .cone-card.fav { border-color: #c79200; box-shadow: 0 0 0 2px rgba(199,146,0,.18), 0 6px 14px rgba(20,30,50,.10); }
+  /* ghost twin flipped 180° in place: visible (through the glass) only while
+     its card is on the far side, since backface culling hides whichever copy
+     faces away */
+  .cone-card.ghost {
+    opacity: .34; box-shadow: none;
+    background: rgba(255,255,255,.78);
+    filter: blur(.6px) saturate(.55);
+  }
   .cone-champ {
     position: absolute; left: -110px; width: 220px; text-align: center;
     font-size: 16px; font-weight: 800; color: #1a1d23;
@@ -519,12 +527,14 @@ function coneCardHTML(n, angle, ring) {
   const cls = ["cone-card"];
   if (favSet.has(n.a.name) || favSet.has(n.b.name)) cls.push("fav");
   if (n.state === "in") cls.push("live");
-  const tf = n.round === "F"
-    ? `translateY(${ring.y}px) rotateY(calc(var(--spin, 0deg) * -1))`
-    : `rotateY(${angle}deg) translateZ(${ring.r}px) translateY(${ring.y}px) rotateX(9deg)`;
-  return `<div class="${cls.join(" ")}" style="transform:${tf}">
-    <span class="rtag">${n.round === "F" ? "Final" : n.round}</span>
-    ${sideHTML(n,"a")}${sideHTML(n,"b")}</div>`;
+  const inner = `<span class="rtag">${n.round === "F" ? "Final" : n.round}</span>
+    ${sideHTML(n,"a")}${sideHTML(n,"b")}`;
+  if (n.round === "F") {
+    return `<div class="${cls.join(" ")}" style="transform:translateY(${ring.y}px) rotateY(calc(var(--spin, 0deg) * -1))">${inner}</div>`;
+  }
+  const place = `rotateY(${angle}deg) translateZ(${ring.r}px) translateY(${ring.y}px) rotateX(9deg)`;
+  return `<div class="${cls.join(" ")}" style="transform:${place}">${inner}</div>` +
+    `<div class="${cls.join(" ")} ghost" aria-hidden="true" style="transform:${place} rotateY(180deg)">${inner}</div>`;
 }
 
 // Glass cone surface: the rings above happen to lie on the straight-sided
