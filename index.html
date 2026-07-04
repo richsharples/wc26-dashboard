@@ -119,7 +119,7 @@
   #cone-view {
     position: relative; height: 660px; overflow: hidden;
     border: 1px solid #e2e5ea; border-radius: 12px;
-    background: radial-gradient(ellipse at 50% 115%, #e8ecf2, #f9fafb 72%);
+    background: radial-gradient(ellipse at 50% 115%, #d9e2f0, #f5f7fb 72%);
     perspective: 1300px; touch-action: pan-y; cursor: grab;
     user-select: none; -webkit-user-select: none;
   }
@@ -132,7 +132,29 @@
   #cone-tilt { transform: rotateX(-12deg); }
   #cone-spin { transform: rotateY(var(--spin, 0deg)); }
   .cone-ring {
-    position: absolute; border: 1.5px dashed #c9d0da; border-radius: 50%;
+    position: absolute; border: 1px dashed rgba(120,150,200,.38); border-radius: 50%;
+    pointer-events: none;
+  }
+  /* glass surface: tapered translucent facets approximating the cone.
+     No backface culling — seeing the inside of the far wall is the glass. */
+  .cone-facet {
+    position: absolute; pointer-events: none;
+    transform-origin: 50% 100%;
+    clip-path: polygon(50% 0, 100% 100%, 0 100%);
+    -webkit-clip-path: polygon(50% 0, 100% 100%, 0 100%);
+  }
+  .cone-disk, .cone-shadow { position: absolute; border-radius: 50%; pointer-events: none; }
+  .cone-disk {
+    background: radial-gradient(circle, rgba(150,175,215,.08) 52%, rgba(150,175,215,.20) 82%, rgba(255,255,255,.42) 95%, rgba(255,255,255,0) 100%);
+    border: 1px solid rgba(130,160,210,.38);
+  }
+  .cone-shadow {
+    background: radial-gradient(circle, rgba(30,45,70,.17), rgba(30,45,70,.09) 46%, rgba(30,45,70,0) 68%);
+  }
+  .cone-apex {
+    position: absolute; width: 12px; height: 12px; left: -6px; top: -6px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,255,255,.95), rgba(210,228,255,0) 72%);
+    box-shadow: 0 0 14px 5px rgba(215,232,255,.65);
     pointer-events: none;
   }
   .cone-card {
@@ -505,9 +527,36 @@ function coneCardHTML(n, angle, ring) {
     ${sideHTML(n,"a")}${sideHTML(n,"b")}</div>`;
 }
 
+// Glass cone surface: the rings above happen to lie on the straight-sided
+// cone r(y) = y + 250, so a base circle of r 424 at y 200 rising to an apex
+// at y -240 hugs them with the cards floating just proud of the glass.
+const CONE_FACETS = 36, CONE_SURF_R = 424, CONE_BASE_Y = 200, CONE_APEX_Y = -240;
+
+function coneGlassHTML(parts) {
+  const height = CONE_BASE_Y - CONE_APEX_Y;
+  const slant = Math.hypot(CONE_SURF_R, height);
+  const tilt = (Math.atan2(CONE_SURF_R, height) * 180 / Math.PI).toFixed(2);
+  const half = Math.PI / CONE_FACETS;
+  const w = 2 * CONE_SURF_R * Math.sin(half);
+  const apothem = (CONE_SURF_R * Math.cos(half)).toFixed(1);
+  // soft ground shadow + glass base disk under the cone
+  parts.push(`<div class="cone-shadow" style="width:960px;height:960px;left:-480px;top:-480px;transform:translateY(${CONE_BASE_Y + 16}px) rotateX(90deg)"></div>`);
+  parts.push(`<div class="cone-disk" style="width:${CONE_SURF_R*2}px;height:${CONE_SURF_R*2}px;left:${-CONE_SURF_R}px;top:${-CONE_SURF_R}px;transform:translateY(${CONE_BASE_Y + 6}px) rotateX(90deg)"></div>`);
+  for (let i = 0; i < CONE_FACETS; i++) {
+    const deg = (i + 0.5) * 360 / CONE_FACETS;
+    // baked-in specular sheen, brightest on facets facing ~40°
+    const spec = Math.pow(Math.max(0, Math.cos((deg - 40) * Math.PI / 180)), 6);
+    const l1 = (72 + spec * 16).toFixed(1), l2 = (86 + spec * 9).toFixed(1);
+    const a1 = (0.20 + spec * 0.16).toFixed(3), a2 = (0.04 + spec * 0.10).toFixed(3);
+    parts.push(`<div class="cone-facet" style="width:${w.toFixed(2)}px;height:${slant.toFixed(1)}px;left:${(-w/2).toFixed(2)}px;top:${(-slant).toFixed(1)}px;transform:rotateY(${deg}deg) translateZ(${apothem}px) translateY(${CONE_BASE_Y}px) rotateX(${tilt}deg);background:linear-gradient(to top, hsla(213,46%,${l1}%,${a1}), hsla(213,60%,${l2}%,${a2}))"></div>`);
+  }
+  parts.push(`<div class="cone-apex" style="transform:translateY(${CONE_APEX_Y}px)"></div>`);
+}
+
 function renderCone() {
   if (!coneSpinEl) return;
   const parts = [];
+  coneGlassHTML(parts);
   for (const [key, ring] of Object.entries(CONE_RINGS)) {
     if (ring.r > 0) {
       parts.push(`<div class="cone-ring" style="width:${ring.r*2}px;height:${ring.r*2}px;left:${-ring.r}px;top:${-ring.r}px;transform:translateY(${ring.y}px) rotateX(90deg)"></div>`);
