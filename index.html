@@ -130,7 +130,7 @@
   }
   #cone-scale { left: 50%; top: 45%; }
   #cone-tilt { transform: rotateX(-12deg); }
-  #cone-spin { transform: rotateY(var(--spin, 0deg)); }
+  #cone-spin { will-change: transform; }
   .cone-ring {
     position: absolute; border: 1px dashed rgba(120,150,200,.38); border-radius: 50%;
     pointer-events: none;
@@ -176,9 +176,9 @@
      its card is on the far side, since backface culling hides whichever copy
      faces away */
   .cone-card.ghost {
-    opacity: .34; box-shadow: none;
-    background: rgba(255,255,255,.78);
-    filter: blur(.6px) saturate(.55);
+    opacity: .30; box-shadow: none;
+    background: rgba(255,255,255,.72);
+    border-color: rgba(190,200,215,.7);
   }
   .cone-champ {
     position: absolute; left: -110px; width: 220px; text-align: center;
@@ -522,6 +522,7 @@ const coneViewEl = document.getElementById("cone-view");
 const coneSpinEl = document.getElementById("cone-spin");
 const coneScaleEl = document.getElementById("cone-scale");
 const CONE_RINGS = { R32:{r:430,y:180}, R16:{r:330,y:80}, QF:{r:238,y:-18}, SF:{r:150,y:-112}, F:{r:0,y:-198} };
+let coneBillboards = [];  // elements that counter-rotate to face the viewer
 
 function coneCardHTML(n, angle, ring) {
   const cls = ["cone-card"];
@@ -530,7 +531,7 @@ function coneCardHTML(n, angle, ring) {
   const inner = `<span class="rtag">${n.round === "F" ? "Final" : n.round}</span>
     ${sideHTML(n,"a")}${sideHTML(n,"b")}`;
   if (n.round === "F") {
-    return `<div class="${cls.join(" ")}" style="transform:translateY(${ring.y}px) rotateY(calc(var(--spin, 0deg) * -1))">${inner}</div>`;
+    return `<div class="${cls.join(" ")}" data-base="translateY(${ring.y}px)">${inner}</div>`;
   }
   const place = `rotateY(${angle}deg) translateZ(${ring.r}px) translateY(${ring.y}px) rotateX(9deg)`;
   return `<div class="${cls.join(" ")}" style="transform:${place}">${inner}</div>` +
@@ -540,7 +541,9 @@ function coneCardHTML(n, angle, ring) {
 // Glass cone surface: the rings above happen to lie on the straight-sided
 // cone r(y) = y + 250, so a base circle of r 424 at y 200 rising to an apex
 // at y -240 hugs them with the cards floating just proud of the glass.
-const CONE_FACETS = 36, CONE_SURF_R = 424, CONE_BASE_Y = 200, CONE_APEX_Y = -240;
+// Touch devices get fewer facets — less overdraw for mobile GPUs.
+const CONE_FACETS = window.matchMedia("(pointer: coarse)").matches ? 24 : 36;
+const CONE_SURF_R = 424, CONE_BASE_Y = 200, CONE_APEX_Y = -240;
 
 function coneGlassHTML(parts) {
   const height = CONE_BASE_Y - CONE_APEX_Y;
@@ -576,8 +579,10 @@ function renderCone() {
   }
   const fNode = bracket.find(n => n.round === "F");
   const champ = fNode && fNode.winner && fNode.state === "post" ? fNode[fNode.winner].name : null;
-  parts.push(`<div class="cone-champ" style="transform:translateY(-282px) rotateY(calc(var(--spin, 0deg) * -1))">🏆${champ ? " " + champ : ""}<div class="cc-sub">${champ ? "World champions" : "Champion"}</div></div>`);
+  parts.push(`<div class="cone-champ" data-base="translateY(-282px)">🏆${champ ? " " + champ : ""}<div class="cc-sub">${champ ? "World champions" : "Champion"}</div></div>`);
   coneSpinEl.innerHTML = parts.join("");
+  coneBillboards = [...coneSpinEl.querySelectorAll("[data-base]")];
+  coneApply();
 }
 
 // View toggle (persisted per browser).
@@ -600,9 +605,22 @@ applyView();
 
 // Drag to spin; slow auto-rotation otherwise (paused on hover and for
 // reduced-motion visitors).
-let coneSpin = 70, coneDragging = false, coneHover = false, coneLastX = 0;
+let coneSpin = 70, coneDragging = false, coneHover = false, coneLastX = 0, coneOnScreen = true;
 const coneAuto = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-function coneApply() { coneSpinEl.style.setProperty("--spin", coneSpin + "deg"); }
+// Write transforms directly: transform-only mutations stay on the GPU
+// compositor. (A CSS variable here would force a full style recalc of every
+// element in the scene on each frame — the difference between a cool phone
+// and a hot one.)
+function coneApply() {
+  coneSpinEl.style.transform = "rotateY(" + coneSpin + "deg)";
+  for (const el of coneBillboards) {
+    el.style.transform = el.dataset.base + " rotateY(" + (-coneSpin) + "deg)";
+  }
+}
+// No point spinning while scrolled out of sight.
+if ("IntersectionObserver" in window) {
+  new IntersectionObserver(entries => { coneOnScreen = entries[0].isIntersecting; }).observe(coneViewEl);
+}
 coneViewEl.addEventListener("pointerdown", e => {
   coneDragging = true; coneLastX = e.clientX;
   coneViewEl.classList.add("dragging");
@@ -623,7 +641,7 @@ if (window.matchMedia("(hover: hover)").matches) {
   coneViewEl.addEventListener("pointerleave", () => { coneHover = false; });
 }
 (function coneTick() {
-  if (coneAuto && !coneDragging && !coneHover && viewMode === "cone") {
+  if (coneAuto && !coneDragging && !coneHover && coneOnScreen && viewMode === "cone") {
     coneSpin += 0.05;
     coneApply();
   }
